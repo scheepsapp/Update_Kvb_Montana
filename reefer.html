@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reefer Monitoring & Controle - Yellowstone Shipping AG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <style>
+        :root {
+            --primary-blue: #1e40af;
+            --glow-blue: #3b82f6;
+            --dark-bg: #020617;
+            --glass: rgba(15, 23, 42, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: white;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            padding-top: 110px;
+        }
+
+        .bg-fixed {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('pic/Afbeelding van WhatsApp op 2025-11-06 om 12.27.07_d3198d5b.jpg');
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            filter: brightness(0.15) contrast(0.95) saturate(0.8);
+        }
+
+        .navbar {
+            height: 90px;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar h1 {
+            font-weight: 900;
+            font-size: 1.4rem;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #fff, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: absolute; left: 50%; transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .main-card {
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 2.5rem;
+            padding: 2rem;
+            box-shadow: 0 0 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(59, 130, 246, 0.05);
+        }
+
+        .table-input {
+            width: 100%;
+            background: rgba(2, 6, 23, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            padding: 0.3rem 0.5rem;
+            color: #f8fafc;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1rem;
+            transition: all 0.15s ease;
+        }
+
+        .table-input:focus {
+            outline: none;
+            border-color: var(--glow-blue);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+            background: rgba(30, 64, 175, 0.2);
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--glass-border);
+            border-radius: 1.5rem;
+            background: rgba(2, 6, 23, 0.4);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        table.reefer-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+
+        table.reefer-table thead tr:first-child th {
+            background-color: rgba(2, 6, 23, 0.9);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 10px 6px;
+            border: 1px solid var(--glass-border);
+        }
+
+        table.reefer-table thead tr:last-child th {
+            background-color: rgba(30, 58, 138, 0.6);
+            color: #cbd5e1;
+            padding: 8px 6px;
+            font-weight: 700;
+            border: 1px solid var(--glass-border);
+            text-transform: uppercase;
+            font-size: 0.65rem;
+        }
+
+        table.reefer-table th.day-sep, 
+        table.reefer-table td.day-sep {
+            border-left: 2px solid rgba(59, 130, 246, 0.3) !important;
+        }
+
+        table.reefer-table td {
+            padding: 6px 8px;
+            border: 1px solid var(--glass-border);
+            color: #cbd5e1;
+            vertical-align: middle;
+            height: 35px;
+        }
+
+        table.reefer-table tbody tr:nth-child(even) td {
+            background-color: rgba(255, 255, 255, 0.01);
+        }
+
+        table.reefer-table tbody tr:hover td {
+            background-color: rgba(59, 130, 246, 0.1);
+            cursor: context-menu;
+        }
+
+        .not-connected-row td {
+            background-color: rgba(153, 27, 27, 0.2) !important;
+            color: #fca5a5 !important;
+        }
+        .not-connected-banner {
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 0.1em;
+            color: #fca5a5;
+            background-color: rgba(153, 27, 27, 0.3) !important;
+        }
+
+        .bg-blue-glow {
+            background: rgba(30, 64, 175, 0.3) !important;
+            color: #93c5fd !important;
+        }
+
+        .bg-index {
+            background-color: rgba(2, 6, 23, 0.6) !important;
+            color: #94a3b8 !important;
+        }
+
+        /* Drag & Drop zone actieve staat */
+        #drop-zone.dragover {
+            background-color: rgba(59, 130, 246, 0.15) !important;
+            border-color: var(--glow-blue) !important;
+            transform: scale(1.01);
+        }
+
+        .modal-tab-btn {
+            color: #64748b;
+            border-bottom: 2px solid transparent;
+        }
+        .modal-tab-btn.active-tab {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border-bottom: 2px solid #3b82f6;
+            box-shadow: inset 0 -10px 20px -10px rgba(59, 130, 246, 0.3);
+        }
+        .text-glow-red {
+            text-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
+        }
+
+        /* Print & PDF Opmaak */
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 8mm;
+            }
+            body {
+                background-color: #ffffff !important;
+                color: #0f172a !important;
+                padding-top: 0 !important;
+                font-size: 9pt;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .navbar, #uploadModal, #noDataPlaceholder, .table-input, #customContextMenu, #customModal, #oudeReizenModal, .bg-fixed {
+                display: none !important;
+            }
+            .main-card {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                background: transparent !important;
+            }
+            #resultContainer {
+                display: block !important;
+            }
+            .table-container {
+                border: 1px solid #334155 !important;
+                border-radius: 4px !important;
+                overflow: visible !important;
+                background: transparent !important;
+            }
+            
+            table.reefer-table thead tr:first-child th {
+                background-color: #0f172a !important;
+                color: #ffffff !important;
+                border: 1px solid #0f172a !important;
+                padding: 5px 3px !important;
+                font-size: 0.65rem !important;
+            }
+            
+            table.reefer-table thead tr:last-child th {
+                background-color: #e2e8f0 !important;
+                color: #0f172a !important;
+                border: 1px solid #94a3b8 !important;
+                padding: 4px 3px !important;
+                font-size: 0.58rem !important;
+                font-weight: 800 !important;
+            }
+            
+            table.reefer-table td {
+                padding: 2px 3px !important;
+                font-size: 0.65rem !important;
+                border: 1px solid #cbd5e1 !important;
+                color: #1e293b !important;
+                height: 22px !important;
+                background: transparent !important;
+            }
+
+            table.reefer-table td.bg-blue-glow {
+                background: #eff6ff !important;
+                color: #1d4ed8 !important;
+                font-weight: 700 !important;
+            }
+
+            table.reefer-table td.bg-index {
+                background-color: #f1f5f9 !important;
+                color: #64748b !important;
+            }
+
+            .not-connected-row td {
+                background-color: #fee2e2 !important;
+                color: #991b1b !important;
+            }
+            
+            table.reefer-table th.day-sep, 
+            table.reefer-table td.day-sep {
+                border-left: 2px solid #0f172a !important;
+            }
+            
+            table.reefer-table tr:nth-child(even) td {
+                background-color: #f8fafc !important;
+            }
+
+            .print-value {
+                display: block !important;
+                text-align: center;
+                font-size: 0.65rem;
+                font-weight: 600;
+                color: #1e293b;
+                line-height: 1.1;
+            }
+            .not-connected-row .print-value {
+                color: #991b1b !important;
+            }
+        }
+        .print-value {
+            display: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center">
+
+    <div class="bg-fixed"></div>
+
+    <header class="navbar">
+        <div class="text-xs font-bold tracking-wider uppercase text-slate-300 flex items-center gap-3">
+            <img src="yellow.png" alt="Yellowstone Shipping AG Logo" class="h-8 w-auto object-contain">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-400 block shadow-[0_0_10px_#60a5fa]"></span>
+            Reefer Monitoring (Cloud)
+        </div>
+        
+        <h1>Reefer Monitoring</h1>
+
+        <div class="flex items-center gap-2">
+            <button onclick="openOudeReizen()" class="bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-semibold uppercase tracking-wider px-3.5 py-2 rounded-xl transition shadow-lg border border-slate-700 backdrop-blur-md">
+                📁 Oude reizen
+            </button>
+
+            <select id="cloudVoyageSelect" class="bg-slate-900 border border-slate-700 rounded-xl text-xs px-2 py-2 text-slate-200 hidden">
+                <option value="">📂 Laad uit Cloud...</option>
+            </select>
+            
+            <button id="btnExportExcel" class="bg-emerald-700/80 hover:bg-emerald-600 text-white text-xs font-semibold uppercase tracking-wider px-3.5 py-2 rounded-xl transition shadow-lg hidden border border-emerald-600 backdrop-blur-md">
+                📥 Excel
+            </button>
+            <button id="btnPrintButton" class="bg-slate-800/80 hover:bg-slate-700 text-white text-xs font-semibold uppercase tracking-wider px-3.5 py-2 rounded-xl transition shadow-lg border border-slate-700 backdrop-blur-md">
+                🖨️ PDF / Print
+            </button>
+            <button id="btnNewVoyage" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold uppercase tracking-wider px-3.5 py-2 rounded-xl transition shadow-lg border border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.4)]">
+                + Nieuwe Reis
+            </button>
+            <button onclick="afrondenReis()" class="bg-rose-800/80 hover:bg-rose-700 text-white text-xs font-semibold uppercase tracking-wider px-3.5 py-2 rounded-xl transition shadow-lg border border-rose-700 backdrop-blur-md">
+                🛑 Afronden
+            </button>
+        </div>
+    </header>
+
+    <div class="w-full max-w-[98%] px-2 pb-8 mt-2 flex flex-col items-center">
+        
+        <!-- Print & PDF Header -->
+        <div class="w-full hidden print:block mb-4">
+            <div class="flex justify-between items-center border-b-2 border-slate-900 pb-2 mb-2">
+                <div class="flex items-center gap-3">
+                    <img src="yellow.png" alt="Yellowstone Shipping AG Logo" class="h-10 w-auto object-contain">
+                    <div>
+                        <h1 class="text-xl font-black tracking-tight text-slate-900 uppercase">REEFER MONITORING RAPPORT</h1>
+                        <p class="text-[9px] font-bold text-slate-500 tracking-wider uppercase">Yellowstone Shipping AG</p>
+                    </div>
+                </div>
+                <div class="border border-slate-900 rounded px-3 py-1 text-center bg-slate-50 min-w-[130px]">
+                    <span class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest">REISCODE</span>
+                    <span id="printVoyageCode" class="text-xs font-black text-slate-900 tracking-wide">-</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 bg-slate-100 p-2.5 rounded border border-slate-300 text-xs">
+                <div>
+                    <span class="font-bold text-slate-500 uppercase text-[9px] tracking-wider block">SCHIP:</span>
+                    <span id="printVessel" class="font-bold text-slate-900 text-sm">New Jersey</span>
+                </div>
+                <div class="text-center border-x border-slate-300 px-2">
+                    <span class="font-bold text-slate-500 uppercase text-[9px] tracking-wider block">START DATUM:</span>
+                    <span id="printDate" class="font-bold text-slate-900 text-sm">-</span>
+                </div>
+                <div class="text-right">
+                    <span class="font-bold text-slate-500 uppercase text-[9px] tracking-wider block">TOTAAL AANTAL:</span>
+                    <span id="printCount" class="font-bold text-slate-900 text-sm">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-card w-full"> 
+            
+            <div id="noDataPlaceholder" class="text-center py-16 text-slate-400 font-light text-sm">
+                Geen actieve reis geladen. Klik rechtsboven op "+ Nieuwe Reis" om een EDI-bestand in te laden.
+            </div>
+
+            <div id="voyageHeaderBlock" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-slate-950/40 p-4 border border-slate-800/80 rounded-2xl print:hidden backdrop-blur-sm">
+                <div>
+                    <span class="block text-[10px] font-medium text-slate-400 uppercase tracking-wider mb-0.5">Schip</span>
+                    <span id="displayVessel" class="text-sm font-semibold text-slate-200">New Jersey</span>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-medium text-slate-400 uppercase tracking-wider mb-0.5">Reiscode</span>
+                    <span id="displayVoyageCode" class="text-sm font-semibold text-blue-400">-</span>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-medium text-slate-400 uppercase tracking-wider mb-0.5">Datum Start Controle</span>
+                    <span id="displayDate" class="text-sm font-semibold text-slate-300">-</span>
+                </div>
+            </div>
+
+            <div id="resultContainer" class="mt-1 hidden">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4 pb-1 print:hidden">
+                    <h2 class="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2">
+                        Gedetecteerde Koelcontainers
+                        <span id="reeferCount" class="bg-blue-950/60 text-blue-300 text-xs px-2.5 py-0.5 rounded-full border border-blue-800/50 font-bold">0</span>
+                    </h2>
+                </div>
+                
+                <div class="table-container custom-scrollbar">
+                    <table class="reefer-table" id="reeferMainTable">
+                        <thead>
+                            <tr>
+                                <th colspan="5">CONTAINER INFRASTRUCTUUR</th>
+                                <th colspan="3" class="day-sep">DAG 1</th>
+                                <th colspan="3" class="day-sep">DAG 2</th>
+                                <th colspan="3" class="day-sep">DAG 3</th>
+                                <th colspan="3" class="day-sep">DAG 4</th>
+                                <th colspan="3" class="day-sep">DAG 5</th>
+                            </tr>
+                            <tr>
+                                <th class="w-8 text-center">NR</th>
+                                <th class="w-24 text-center">CONTAINER</th>
+                                <th class="w-20 text-center">TERM</th>
+                                <th class="w-20 text-center">SETPOINT</th>
+                                <th class="w-16 text-center">1E TEMP</th>
+                                
+                                <th class="day-sep w-12 text-center">08:00</th><th class="w-12 text-center">16:00</th><th class="w-12 text-center">22:00</th>
+                                <th class="day-sep w-12 text-center">08:00</th><th class="w-12 text-center">16:00</th><th class="w-12 text-center">22:00</th>
+                                <th class="day-sep w-12 text-center">08:00</th><th class="w-12 text-center">16:00</th><th class="w-12 text-center">22:00</th>
+                                <th class="day-sep w-12 text-center">08:00</th><th class="w-12 text-center">16:00</th><th class="w-12 text-center">22:00</th>
+                                <th class="day-sep w-12 text-center">08:00</th><th class="w-12 text-center">16:00</th><th class="w-12 text-center">22:00</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reeferTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Algemene Mid-Screen Pop-up Modal -->
+    <div id="customModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 w-full max-w-sm mx-4 shadow-2xl text-center backdrop-blur-xl">
+            <h3 id="modalTitle" class="text-sm font-bold text-slate-100 uppercase tracking-wider mb-2">Melding</h3>
+            <p id="modalMessage" class="text-xs text-slate-300 mb-6"></p>
+            
+            <div id="modalInputContainer" class="mb-4 hidden">
+                <input type="text" id="modalInput" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-slate-100 text-xs text-center focus:outline-none focus:border-blue-500">
+            </div>
+
+            <div id="modalButtons" class="flex gap-2 justify-center"></div>
+        </div>
+    </div>
+
+    <!-- Upload Modal met Drag & Drop Functionaliteit -->
+    <div id="uploadModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 w-full max-w-md mx-4 shadow-2xl relative text-slate-200 backdrop-blur-xl">
+            <button id="btnCloseModal" class="absolute top-4 right-5 text-slate-400 hover:text-slate-200 text-xl font-medium">&times;</button>
+            <h2 class="text-sm font-bold text-slate-100 uppercase tracking-wider mb-4 pb-2 border-b border-slate-800">Nieuwe Reis Starten</h2>
+            <div class="mb-4">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Datum Start Controle:</label>
+                <input type="date" id="checkDate" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-slate-200 text-xs">
+            </div>
+            <div class="mb-6">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">BAPLIE EDI Bestand (.edi):</label>
+                
+                <!-- Sleep-zone (Drag & Drop) -->
+                <label id="drop-zone" for="ediFile" class="w-full block cursor-pointer p-6 text-center border border-dashed border-slate-700 rounded-2xl bg-slate-950/50 hover:bg-slate-950 transition">
+                    <span class="text-2xl mb-1 block">📂</span>
+                    <span class="text-xs text-slate-300 font-bold block">Sleep je .edi bestand hierheen</span>
+                    <span class="text-[10px] text-slate-500 block mt-0.5">of klik om te bladeren</span>
+                    <span id="file-name" class="text-xs text-blue-400 font-semibold mt-2 block"></span>
+                </label>
+                <input type="file" id="ediFile" accept=".edi" class="hidden">
+            </div>
+            <div class="flex gap-2 justify-end">
+                <button id="btnCancelModal" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl uppercase transition border border-slate-700">Annuleren</button>
+                <button id="processButton" class="bg-blue-600 hover:bg-blue-500 text-white text-xs uppercase py-2 px-5 font-semibold rounded-xl transition border border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.3)]">Inladen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal voor Oude Reizen -->
+    <div id="oudeReizenModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50">
+        <div class="bg-slate-900 border border-slate-700/80 p-6 rounded-3xl shadow-2xl w-96 backdrop-blur-xl">
+            <h3 class="text-sm font-bold uppercase tracking-wider mb-4 text-slate-100">Selecteer een oude reis</h3>
+            <select id="oudeReizenSelect" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl mb-4 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
+                <option value="">Laden...</option>
+            </select>
+            <div class="flex justify-end gap-2">
+                <button onclick="laadOudeReis()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold uppercase tracking-wider px-4 py-2 rounded-xl transition border border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.3)]">Openen</button>
+                <button onclick="sluitOudeReizenModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold uppercase tracking-wider px-4 py-2 rounded-xl transition border border-slate-700">Sluiten</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="customContextMenu" class="fixed hidden bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl py-1 w-56 z-50 text-xs font-medium text-slate-200 backdrop-blur-xl">
+        <button onclick="handleMenuAction('edit_setpoint')" class="w-full text-left px-4 py-2.5 hover:bg-blue-900/30 flex items-center gap-2.5 transition-colors">
+            <span>✏️</span> Wijzig setpoint
+        </button>
+        <button onclick="handleMenuAction('disconnect')" class="w-full text-left px-4 py-2.5 hover:bg-blue-900/30 flex items-center gap-2.5 transition-colors">
+            <span>🔌</span> Niet aansluiten
+        </button>
+        <button onclick="handleMenuAction('add_note')" class="w-full text-left px-4 py-2.5 hover:bg-blue-900/30 flex items-center gap-2.5 transition-colors">
+            <span>📝</span> Opmerking toevoegen
+        </button>
+        <hr class="border-slate-800 my-1">
+        <button onclick="handleMenuAction('copy_number')" class="w-full text-left px-4 py-2.5 hover:bg-blue-900/30 flex items-center gap-2.5 transition-colors">
+            <span>📋</span> Kopieer containernummer
+        </button>
+        <hr class="border-slate-800 my-1">
+        <button onclick="handleMenuAction('delete_container')" class="w-full text-left px-4 py-2.5 hover:bg-rose-950/40 text-rose-400 flex items-center gap-2.5 transition-colors">
+            <span>🗑</span> Verwijder container
+        </button>
+    </div>
+
+    <!-- Firebase SDK's & Module Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, setDoc, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkGzOgfmW8MdJT3qIyThACD7yVJhYzaAI",
+            authDomain: "reefers-new-jersey.firebaseapp.com",
+            projectId: "reefers-new-jersey",
+            storageBucket: "reefers-new-jersey.firebasestorage.app",
+            messagingSenderId: "707183343637",
+            appId: "1:707183343637:web:7c64606a774615a6a4b61c",
+            measurementId: "G-VMV3GNEZ6B"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function laadActieveReisBijOpstarten() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "reizen"));
+                let actieveReisData = null;
+                let actieveReisId = null;
+
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    if (!data.status || data.status === "Actief") {
+                        actieveReisData = data;
+                        actieveReisId = docSnap.id;
+                    }
+                });
+
+                if (actieveReisData && actieveReisId) {
+                    window.extractedVoyage = actieveReisData.voyageCode || actieveReisId;
+                    window.extractedVessel = "New Jersey";
+                    window.reefersFound = actieveReisData.reefers || [];
+                    
+                    if(document.getElementById('checkDate')) {
+                        document.getElementById('checkDate').value = actieveReisData.startDate || '';
+                    }
+
+                    document.getElementById('displayVessel').textContent = "New Jersey";
+                    document.getElementById('displayVoyageCode').textContent = window.extractedVoyage;
+                    document.getElementById('displayDate').textContent = actieveReisData.startDate || '';
+                    
+                    document.getElementById('printVessel').textContent = "New Jersey";
+                    document.getElementById('printVoyageCode').textContent = window.extractedVoyage;
+                    document.getElementById('printDate').textContent = actieveReisData.startDate || '';
+                    document.getElementById('printCount').textContent = window.reefersFound.length;
+
+                    if (typeof window.displayReefers === 'function') {
+                        window.displayReefers();
+                    }
+
+                    document.getElementById('noDataPlaceholder').classList.add('hidden');
+                    document.getElementById('voyageHeaderBlock').classList.remove('hidden');
+                    if (window.reefersFound.length > 0) {
+                        document.getElementById('btnExportExcel').classList.remove('hidden');
+                    }
+                } else {
+                    document.getElementById('noDataPlaceholder').classList.remove('hidden');
+                    document.getElementById('voyageHeaderBlock').classList.add('hidden');
+                    document.getElementById('resultContainer').classList.add('hidden');
+                    document.getElementById('btnExportExcel').classList.add('hidden');
+                }
+            } catch (error) {
+                console.error("Fout bij controleren actieve reis: ", error);
+            }
+        }
+
+        laadActieveReisBijOpstarten();
+
+        window.openOudeReizen = async function() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "reizen"));
+                const select = document.getElementById('oudeReizenSelect');
+                select.innerHTML = '';
+                
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const opt = document.createElement('option');
+                    opt.value = docSnap.id;
+                    opt.textContent = `${data.voyageCode} - New Jersey (${data.status || 'Actief'})`;
+                    select.appendChild(opt);
+                });
+
+                document.getElementById('oudeReizenModal').classList.remove('hidden');
+            } catch (error) {
+                console.error("Fout bij ophalen oude reizen: ", error);
+                showCustomAlert("Kon oude reizen niet laden.");
+            }
+        };
+
+        window.sluitOudeReizenModal = function() {
+            document.getElementById('oudeReizenModal').classList.add('hidden');
+        };
+
+        window.laadOudeReis = async function() {
+            const voyageId = document.getElementById('oudeReizenSelect').value;
+            if (!voyageId) return;
+
+            try {
+                const docRef = doc(db, "reizen", voyageId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    window.extractedVoyage = data.voyageCode;
+                    window.extractedVessel = "New Jersey";
+                    window.reefersFound = data.reefers || [];
+                    
+                    if(document.getElementById('checkDate')) {
+                        document.getElementById('checkDate').value = data.startDate || '';
+                    }
+
+                    document.getElementById('displayVessel').textContent = "New Jersey";
+                    document.getElementById('displayVoyageCode').textContent = window.extractedVoyage;
+                    document.getElementById('displayDate').textContent = data.startDate || '';
+                    
+                    document.getElementById('printVessel').textContent = "New Jersey";
+                    document.getElementById('printVoyageCode').textContent = window.extractedVoyage;
+                    document.getElementById('printDate').textContent = data.startDate || '';
+                    document.getElementById('printCount').textContent = window.reefersFound.length;
+
+                    if (typeof window.displayReefers === 'function') {
+                        window.displayReefers();
+                    }
+
+                    document.getElementById('noDataPlaceholder').classList.add('hidden');
+                    document.getElementById('voyageHeaderBlock').classList.remove('hidden');
+                    document.getElementById('btnExportExcel').classList.remove('hidden');
+
+                    window.sluitOudeReizenModal();
+                    showCustomAlert(`Reis ${window.extractedVoyage} succesvol geopend!`);
+                }
+            } catch (error) {
+                console.error("Fout bij inladen reis: ", error);
+            }
+        };
+
+        window.afrondenReis = async function() {
+            showCustomConfirm("Weet u zeker dat u deze reis wilt afronden? Het scherm wordt hierna leeggemaakt voor een nieuwe reis.", async () => {
+                if (window.extractedVoyage) {
+                    try {
+                        await updateDoc(doc(db, "reizen", window.extractedVoyage), {
+                            status: "Afgerond"
+                        });
+                    } catch (e) {
+                        console.error("Kon status niet bijwerken", e);
+                    }
+                }
+
+                window.extractedVoyage = "";
+                window.extractedVessel = "New Jersey";
+                window.reefersFound = [];
+
+                if(document.getElementById('checkDate')) {
+                    document.getElementById('checkDate').valueAsDate = new Date();
+                }
+
+                document.getElementById('noDataPlaceholder').classList.remove('hidden');
+                document.getElementById('voyageHeaderBlock').classList.add('hidden');
+                document.getElementById('resultContainer').classList.add('hidden');
+                document.getElementById('btnExportExcel').classList.add('hidden');
+
+                showCustomAlert("Reis afgerond. U start nu met een leeg blad!");
+            });
+        };
+
+        let autoSaveTimer = null;
+        window.triggerAutoSave = function() {
+            if (!window.extractedVoyage) return;
+
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(async () => {
+                try {
+                    const voyageData = {
+                        vessel: "New Jersey",
+                        voyageCode: window.extractedVoyage,
+                        startDate: document.getElementById('checkDate') ? document.getElementById('checkDate').value : "",
+                        reefers: window.reefersFound || [],
+                        status: "Actief",
+                        lastUpdated: new Date().toISOString()
+                    };
+
+                    await setDoc(doc(db, "reizen", window.extractedVoyage), voyageData, { merge: true });
+                } catch (error) {
+                    console.error("Fout bij automatisch opslaan in cloud: ", error);
+                }
+            }, 1000);
+        };
+
+        document.addEventListener('input', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+                window.triggerAutoSave();
+            }
+        });
+
+        document.addEventListener('change', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+                window.triggerAutoSave();
+            }
+        });
+    </script>
+
+    <!-- Algemene App Logica -->
+    <script>
+        document.getElementById('checkDate').valueAsDate = new Date();
+        window.reefersFound = [];
+        window.extractedVessel = "New Jersey";
+        window.extractedVoyage = "";
+        let selectedRowIndex = null;
+
+        const fieldOrder = [
+            'firstTemp', 'd1_1', 'd1_2', 'd1_3', 'd2_1', 'd2_2', 'd2_3',
+            'd3_1', 'd3_2', 'd3_3', 'd4_1', 'd4_2', 'd4_3', 'd5_1', 'd5_2', 'd5_3'
+        ];
+
+        function showCustomAlert(message, title = "Melding") {
+            const modal = document.getElementById('customModal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('modalInputContainer').classList.add('hidden');
+            
+            const btnContainer = document.getElementById('modalButtons');
+            btnContainer.innerHTML = `<button onclick="closeCustomModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold uppercase px-5 py-2 rounded-xl transition border border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.3)]">OK</button>`;
+            
+            modal.classList.remove('hidden');
+        }
+
+        function showCustomConfirm(message, onConfirm, title = "Bevestigen") {
+            const modal = document.getElementById('customModal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('modalInputContainer').classList.add('hidden');
+            
+            const btnContainer = document.getElementById('modalButtons');
+            btnContainer.innerHTML = `
+                <button id="modalBtnCancel" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold uppercase px-4 py-2 rounded-xl transition border border-slate-700">Annuleren</button>
+                <button id="modalBtnConfirm" class="bg-rose-800 hover:bg-rose-700 text-white text-xs font-semibold uppercase px-4 py-2 rounded-xl transition border border-rose-700">Ja, doorgaan</button>
+            `;
+            
+            modal.classList.remove('hidden');
+
+            document.getElementById('modalBtnCancel').onclick = closeCustomModal;
+            document.getElementById('modalBtnConfirm').onclick = () => {
+                closeCustomModal();
+                if (onConfirm) onConfirm();
+            };
+        }
+
+        function showCustomPrompt(message, defaultValue, onInputSubmit, title = "Invoer vereist") {
+            const modal = document.getElementById('customModal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            
+            const inputContainer = document.getElementById('modalInputContainer');
+            const inputField = document.getElementById('modalInput');
+            inputField.value = defaultValue || "";
+            inputContainer.classList.remove('hidden');
+            
+            const btnContainer = document.getElementById('modalButtons');
+            btnContainer.innerHTML = `
+                <button id="modalBtnCancel" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold uppercase px-4 py-2 rounded-xl transition border border-slate-700">Annuleren</button>
+                <button id="modalBtnSubmit" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold uppercase px-4 py-2 rounded-xl transition border border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.3)]">Opslaan</button>
+            `;
+            
+            modal.classList.remove('hidden');
+            inputField.focus();
+
+            document.getElementById('modalBtnCancel').onclick = closeCustomModal;
+            document.getElementById('modalBtnSubmit').onclick = () => {
+                const val = inputField.value;
+                closeCustomModal();
+                if (onInputSubmit) onInputSubmit(val);
+            };
+        }
+
+        function closeCustomModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        document.getElementById('btnNewVoyage').addEventListener('click', () => document.getElementById('uploadModal').classList.remove('hidden'));
+        document.getElementById('btnCloseModal').addEventListener('click', () => document.getElementById('uploadModal').classList.add('hidden'));
+        document.getElementById('btnCancelModal').addEventListener('click', () => document.getElementById('uploadModal').classList.add('hidden'));
+
+        document.getElementById('ediFile').addEventListener('change', (e) => {
+            if (e.target.files.length > 0) document.getElementById('file-name').textContent = e.target.files[0].name;
+        });
+
+        // --- DRAG & DROP LOGICA ---
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('ediFile');
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.add('dragover');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('dragover');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                document.getElementById('file-name').textContent = files[0].name;
+            }
+        });
+
+        document.getElementById('processButton').addEventListener('click', () => {
+            const file = fileInput.files[0];
+            if (!file) {
+                showCustomAlert('Selecteer of sleep alstublieft een bestand.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                parseBaplie(e.target.result);
+                
+                const reis = window.extractedVoyage || "Onbekend";
+                const datum = document.getElementById('checkDate').value;
+
+                document.getElementById('displayVessel').textContent = "New Jersey";
+                document.getElementById('displayVoyageCode').textContent = reis;
+                document.getElementById('displayDate').textContent = datum;
+                
+                document.getElementById('printVessel').textContent = "New Jersey";
+                document.getElementById('printVoyageCode').textContent = reis;
+                document.getElementById('printDate').textContent = datum;
+                document.getElementById('printCount').textContent = window.reefersFound.length;
+
+                document.getElementById('noDataPlaceholder').classList.add('hidden');
+                document.getElementById('voyageHeaderBlock').classList.remove('hidden');
+                document.getElementById('uploadModal').classList.add('hidden');
+                
+                if (typeof window.triggerAutoSave === 'function') {
+                    window.triggerAutoSave();
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        function parseBaplie(content) {
+            const segments = content.split("'");
+            window.reefersFound = [];
+            window.extractedVessel = "New Jersey";
+            let tempStoredTemp = "N/A", tempStoredTerminal = "N/A", tempIsReefer = false;
+
+            for (let segment of segments) {
+                if (!segment.trim()) continue;
+                const parts = segment.replace(/\r?\n|\r/g, "").split("+").map(p => p.trim());
+                if (parts[0] === "TDT") {
+                    if (parts[2]) window.extractedVoyage = parts[2];
+                }
+                if (parts[0] === "LOC" && (parts[1] === "11" || parts[1] === "83")) {
+                    if (parts[2]) tempStoredTerminal = parts[2].split(":")[0].trim() === "DPWGE" ? "Germersheim" : parts[2].split(":")[0].trim();
+                }
+                if (parts[0] === "TMP" || parts[0] === "RNG") {
+                    tempIsReefer = true;
+                    if (parts[0] === "RNG" && parts[2]) {
+                        tempStoredTemp = parts[2].split(":").pop().trim() + " " + (parts[2].includes("FAH") || segment.includes("FAH") ? "°F" : "°C");
+                    }
+                }
+                if (parts[0] === "EQD" && parts[1] === "CN") {
+                    if ((parts[3] && (parts[3].includes("R") || parts[3].includes("H"))) || tempIsReefer) {
+                        if (parts[2] && !window.reefersFound.some(r => r.number === parts[2])) {
+                            window.reefersFound.push({
+                                number: parts[2], terminal: tempStoredTerminal, temp: tempStoredTemp,
+                                isDisconnected: false,
+                                values: { firstTemp: '', d1_1:'', d1_2:'', d1_3:'', d2_1:'', d2_2:'', d2_3:'', d3_1:'', d3_2:'', d3_3:'', d4_1:'', d4_2:'', d4_3:'', d5_1:'', d5_2:'', d5_3:'' }
+                            });
+                        }
+                    }
+                    tempStoredTemp = "N/A"; tempStoredTerminal = "N/A"; tempIsReefer = false;
+                }
+            }
+            window.displayReefers();
+            
+            if(window.reefersFound.length > 0) {
+                document.getElementById('btnExportExcel').classList.remove('hidden');
+            }
+        }
+
+        window.displayReefers = function() {
+            const tbody = document.getElementById('reeferTableBody');
+            tbody.innerHTML = "";
+            document.getElementById('reeferCount').textContent = window.reefersFound.length;
+
+            window.reefersFound.forEach((r, idx) => {
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-row-index', idx);
+                
+                if (r.isDisconnected) {
+                    tr.classList.add('not-connected-row');
+                    tr.innerHTML = `
+                        <td class="text-center font-bold bg-index">${idx + 1}</td>
+                        <td class="font-bold text-center">${r.number}</td>
+                        <td class="text-center text-[10px]">${r.terminal}</td>
+                        <td class="font-bold text-center">NOT CONNECTED</td>
+                        <td colspan="16" class="not-connected-banner">NOT CONNECTED</td>
+                    `;
+                } else {
+                    tr.innerHTML = `
+                        <td class="text-center text-slate-400 font-bold bg-index">${idx + 1}</td>
+                        <td class="font-bold text-center text-slate-200">${r.number}</td>
+                        <td class="text-slate-400 text-center text-[10px]">${r.terminal}</td>
+                        <td class="font-bold text-center text-blue-400 bg-blue-glow" id="setpoint_${idx}">${r.temp}</td>
+                        ${generateInputs(idx, r.values)}
+                    `;
+                }
+                
+                tr.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    selectedRowIndex = idx;
+                    showContextMenu(e.clientX, e.clientY);
+                });
+
+                tbody.appendChild(tr);
+            });
+
+            tbody.querySelectorAll('.table-input').forEach(input => input.addEventListener('keydown', handleNavigation));
+            document.getElementById('resultContainer').classList.remove('hidden');
+        };
+
+        function generateInputs(rowIdx, savedValues) {
+            return fieldOrder.map((field, idx) => {
+                const isDayStart = field !== 'firstTemp' && (idx - 1) % 3 === 0;
+                const sepClass = isDayStart ? 'day-sep' : '';
+                const val = savedValues ? savedValues[field] : '';
+                return `
+                    <td class="${sepClass}">
+                        <input type="text" class="table-input" data-row="${rowIdx}" data-field="${field}" value="${val}" oninput="updateVal(${rowIdx}, '${field}', this.value)">
+                        <span class="print-value" id="print_${rowIdx}_${field}">${val}</span>
+                    </td>
+                `;
+            }).join('');
+        }
+
+        window.updateVal = function(index, key, val) { 
+            if(window.reefersFound[index]) {
+                window.reefersFound[index].values[key] = val; 
+            }
+            const printSpan = document.getElementById(`print_${index}_${key}`);
+            if (printSpan) printSpan.textContent = val;
+        }
+
+        function handleNavigation(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const currentRow = parseInt(this.getAttribute('data-row'));
+                const fieldIdx = fieldOrder.indexOf(this.getAttribute('data-field'));
+                let nextRow = currentRow + 1, nextFieldIdx = fieldIdx;
+                if (nextRow >= window.reefersFound.length) { nextRow = 0; nextFieldIdx = fieldIdx + 1; }
+                if (nextFieldIdx >= fieldOrder.length) return;
+                const nextTarget = document.querySelector(`[data-row="${nextRow}"][data-field="${fieldOrder[nextFieldIdx]}"]`);
+                if (nextTarget) { nextTarget.focus(); nextTarget.select(); }
+            }
+        }
+
+        const contextMenu = document.getElementById('customContextMenu');
+
+        function showContextMenu(x, y) {
+            contextMenu.style.left = `${x}px`;
+            contextMenu.style.top = `${y}px`;
+            contextMenu.classList.remove('hidden');
+        }
+
+        function hideContextMenu() {
+            contextMenu.classList.add('hidden');
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!contextMenu.contains(e.target)) hideContextMenu();
+        });
+
+        window.addEventListener('blur', hideContextMenu);
+
+        window.handleMenuAction = function(action) {
+            hideContextMenu();
+            if (selectedRowIndex === null || !window.reefersFound[selectedRowIndex]) return;
+
+            const reefer = window.reefersFound[selectedRowIndex];
+
+            switch(action) {
+                case 'edit_setpoint':
+                    if (reefer.isDisconnected) {
+                        showCustomAlert("Deze container is ingesteld als 'Niet aansluiten'.");
+                        return;
+                    }
+                    showCustomPrompt(`Voer nieuw setpoint in voor ${reefer.number}:`, reefer.temp, (newSetpoint) => {
+                        if (newSetpoint !== null) {
+                            newSetpoint = newSetpoint.trim();
+                            if (newSetpoint !== "") {
+                                const hasDegreeSymbol = /[°CF]/i.test(newSetpoint);
+                                if (!hasDegreeSymbol) {
+                                    newSetpoint += " °C";
+                                }
+                            }
+                            reefer.temp = newSetpoint;
+                            window.displayReefers();
+                            if (typeof window.triggerAutoSave === 'function') window.triggerAutoSave();
+                        }
+                    }, "Setpoint wijzigen");
+                    break;
+                    
+                case 'disconnect':
+                    showCustomConfirm(`Weet u zeker dat u container ${reefer.number} op 'Niet aansluiten' wilt zetten?`, () => {
+                        reefer.isDisconnected = !reefer.isDisconnected;
+                        if (reefer.isDisconnected) {
+                            fieldOrder.forEach(field => window.updateVal(selectedRowIndex, field, ""));
+                        }
+                        window.displayReefers();
+                        if (typeof window.triggerAutoSave === 'function') window.triggerAutoSave();
+                    }, "Container status");
+                    break;
+                    
+                case 'add_note':
+                    showCustomPrompt(`Voeg opmerking toe voor ${reefer.number}:`, "", (opmerking) => {
+                        if (opmerking) {
+                            reefer.terminal = `${reefer.terminal} (${opmerking})`;
+                            window.displayReefers();
+                            if (typeof window.triggerAutoSave === 'function') window.triggerAutoSave();
+                        }
+                    }, "Opmerking toevoegen");
+                    break;
+                    
+                case 'copy_number':
+                    navigator.clipboard.writeText(reefer.number)
+                        .then(() => showCustomAlert(`Containernummer ${reefer.number} gekopieerd naar klembord!`))
+                        .catch(err => console.error('Fout bij kopiëren: ', err));
+                    break;
+                    
+                case 'delete_container':
+                    showCustomConfirm(`Weet u zeker dat u container ${reefer.number} wilt verwijderen uit deze reis?`, () => {
+                        window.reefersFound.splice(selectedRowIndex, 1);
+                        document.getElementById('printCount').textContent = window.reefersFound.length;
+                        window.displayReefers();
+                        if (typeof window.triggerAutoSave === 'function') window.triggerAutoSave();
+                    }, "Container verwijderen");
+                    break;
+            }
+        }
+
+        document.getElementById('btnPrintButton').addEventListener('click', () => {
+            window.print();
+        });
+
+        document.getElementById('btnExportExcel').addEventListener('click', async () => {
+            if (window.reefersFound.length === 0) {
+                showCustomAlert("Er is geen data om te exporteren.");
+                return;
+            }
+
+            const workbook = new ExcelJS.Workbook();
+            workbook.creator = 'Yellowstone Shipping AG';
+            const worksheet = workbook.addWorksheet('Reefer Monitoring');
+
+            worksheet.columns = [
+                { header: 'NR', key: 'nr', width: 6 },
+                { header: 'CONTAINER', key: 'container', width: 18 },
+                { header: 'TERM', key: 'term', width: 12 },
+                { header: 'SETPOINT', key: 'setpoint', width: 15 },
+                { header: '1E TEMP', key: 'firstTemp', width: 12 },
+                { header: 'D1 08:00', key: 'd1_1', width: 10 }, { header: 'D1 16:00', key: 'd1_2', width: 10 }, { header: 'D1 22:00', key: 'd1_3', width: 10 },
+                { header: 'D2 08:00', key: 'd2_1', width: 10 }, { header: 'D2 16:00', key: 'd2_2', width: 10 }, { header: 'D2 22:00', key: 'd2_3', width: 10 },
+                { header: 'D3 08:00', key: 'd3_1', width: 10 }, { header: 'D3 16:00', key: 'd3_2', width: 10 }, { header: 'D3 22:00', key: 'd3_3', width: 10 },
+                { header: 'D4 08:00', key: 'd4_1', width: 10 }, { header: 'D4 16:00', key: 'd4_2', width: 10 }, { header: 'D4 22:00', key: 'd4_3', width: 10 },
+                { header: 'D5 08:00', key: 'd5_1', width: 10 }, { header: 'D5 16:00', key: 'd5_2', width: 10 }, { header: 'D5 22:00', key: 'd5_3', width: 10 }
+            ];
+
+            const headerRow = worksheet.getRow(1);
+            headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 10 };
+            headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F172A' } };
+            headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+            headerRow.height = 25;
+
+            window.reefersFound.forEach((r, idx) => {
+                const row = worksheet.addRow({
+                    nr: idx + 1,
+                    container: r.number,
+                    term: r.terminal,
+                    setpoint: r.isDisconnected ? 'NOT CONNECTED' : r.temp,
+                    firstTemp: r.isDisconnected ? 'NOT CONNECTED' : r.values.firstTemp,
+                    d1_1: r.isDisconnected ? '' : r.values.d1_1, d1_2: r.isDisconnected ? '' : r.values.d1_2, d1_3: r.isDisconnected ? '' : r.values.d1_3,
+                    d2_1: r.isDisconnected ? '' : r.values.d2_1, d2_2: r.isDisconnected ? '' : r.values.d2_2, d2_3: r.isDisconnected ? '' : r.values.d2_3,
+                    d3_1: r.isDisconnected ? '' : r.values.d3_1, d3_2: r.isDisconnected ? '' : r.values.d3_2, d3_3: r.isDisconnected ? '' : r.values.d3_3,
+                    d4_1: r.isDisconnected ? '' : r.values.d4_1, d4_2: r.isDisconnected ? '' : r.values.d4_2, d4_3: r.isDisconnected ? '' : r.values.d4_3,
+                    d5_1: r.isDisconnected ? '' : r.values.d5_1, d5_2: r.isDisconnected ? '' : r.values.d5_2, d5_3: r.isDisconnected ? '' : r.values.d5_3
+                });
+
+                if (r.isDisconnected) {
+                    row.eachCell((cell) => {
+                        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEE2E2' } };
+                        cell.font = { bold: true, color: { argb: 'FF991B1B' } };
+                        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                    });
+                } else {
+                    row.getCell('setpoint').font = { bold: true, color: { argb: 'FF1D4ED8' } };
+                    row.eachCell((cell, colNumber) => {
+                        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                        cell.border = {
+                            top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                            left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                            bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                            right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+                        };
+                        if ([6, 9, 12, 15, 18].includes(colNumber)) {
+                            cell.border.left = { style: 'medium', color: { argb: 'FF475569' } };
+                        }
+                    });
+                }
+            });
+
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            
+            const datum = document.getElementById('checkDate').value || new Date().toISOString().split('T')[0];
+            const bestandsnaam = `Reefer_Export_${window.extractedVoyage || 'Onbekend'}_${datum}.xlsx`;
+            
+            saveAs(blob, bestandsnaam);
+        });
+    </script>
+</body>
+</html>

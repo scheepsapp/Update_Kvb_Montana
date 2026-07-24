@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MS New Jersey</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+        <link rel="icon" type="image/png" href="pic/icon-logo.png">   
+
+    <style>
+.modal-tab-btn {
+    color: #64748b;
+    border-bottom: 2px solid transparent;
+}
+.modal-tab-btn.active-tab {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border-bottom: 2px solid #3b82f6;
+    box-shadow: inset 0 -10px 20px -10px rgba(59, 130, 246, 0.3);
+}
+.text-glow-red {
+    text-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
+}
+        :root {
+            --primary-blue: #1e40af;
+            --glow-blue: #3b82f6;
+            --dark-bg: #020617;
+            --glass: rgba(15, 23, 42, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: white;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .bg-fixed {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('pic/Afbeelding van WhatsApp op 2025-11-06 om 12.27.07_d3198d5b.jpg');
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            filter: brightness(0.15) contrast(0.95) saturate(0.8);
+        }
+
+        .navbar {
+            height: 90px;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar h1 {
+            font-weight: 900;
+            font-size: 1.6rem;
+            letter-spacing: 0.8em;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #fff, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: absolute; left: 50%; transform: translateX(-50%);
+        }
+
+        .side-panel {
+            position: fixed;
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 2.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 0 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(59, 130, 246, 0.05);
+            z-index: 500;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+/* Zoek deze regels op (rond regel 80) en vervang ze: */
+.left { 
+    top: 20%; 
+    left: 25px; 
+    width: 320px; 
+}
+
+.right { 
+    top: 20%; 
+    right: 25px; 
+    width: 420px; 
+    overflow: hidden; 
+}
+
+        .side-panel.right.hidden-panel { transform: translateX(calc(100% + 50px)); }
+
+        .toggle-tab {
+            position: fixed; right: 0; top: 50%; transform: translateY(-50%);
+            background: rgba(30, 64, 175, 0.8); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); width: 35px; height: 70px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 1.5rem 0 0 1.5rem; cursor: pointer; z-index: 1001;
+        }
+
+        .toggle-tab.closed svg { transform: rotate(180deg); }
+
+        .tab-container { display: flex; gap: 5px; margin-bottom: 10px; background: rgba(255,255,255,0.05); padding: 4px; border-radius: 1rem; }
+        .tab-btn { flex: 1; padding: 8px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; border-radius: 0.75rem; transition: 0.3s; color: #94a3b8; }
+        .tab-btn.active { background: var(--primary-blue); color: white; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+
+        #station-search-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #020617; z-index: 2000; display: none; flex-direction: column;
+            padding: 1.5rem; border-radius: 2.5rem; border: 2px solid var(--primary-blue);
+        }
+
+        .station-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 15px; background: rgba(255,255,255,0.08); margin-bottom: 6px;
+            border-radius: 0.75rem; cursor: pointer; font-size: 0.85rem; font-weight: 700;
+            color: white; border: 1px solid rgba(255,255,255,0.1); transition: 0.2s;
+        }
+        .station-item:hover { background: rgba(255,255,255,0.15); transform: translateX(5px); }
+        .station-name { flex-grow: 1; }
+        
+        .star-icon { font-size: 1.2rem; color: #475569; transition: 0.3s; padding: 0 5px; }
+        .star-icon.is-fav { color: #facc15; text-shadow: 0 0 10px rgba(250, 204, 21, 0.5); }
+
+        .web-mask { width: 100%; height: 420px; border-radius: 1rem; overflow: hidden; border: 1px solid rgba(59, 130, 246, 0.2); background: #fff; position: relative; }
+        
+        #rws-frame { position: absolute; border: none; transition: all 0.3s ease-out; height: 1000px; }
+
+
+.refresh-circle {
+    position: absolute; 
+    top: 0rem; 
+    right: 1rem; 
+    width: 35px; 
+    height: 35px;
+    background: rgba(59, 130, 246, 0.2); 
+    border: 2px solid rgba(59, 130, 246, 0.4);
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    cursor: pointer; 
+    z-index: 10; 
+    transition: 0.3s;
+}
+        .refresh-circle.auto-active { background: #10b981; border-color: #059669; box-shadow: 0 0 15px #10b981; animation: pulse 2s infinite; }
+
+        .data-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 1.5rem; padding: 1rem; margin-bottom: 0.75rem; text-align: center; }
+        .panel-label { color: #94a3b8; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2.5px; display: block; margin-bottom: 4px; }
+        .panel-val { color: #ffffff; font-weight: 800; font-size: 1.1rem; }
+
+        .search-box { margin-top: 80px; margin-bottom: 3rem; width: 100%; max-width: 550px; }
+        .search-input { width: 100%; background: rgba(255, 255, 255, 0.95) !important; border-radius: 3rem !important; padding: 1.1rem; color: #020617; font-weight: 700; border: none; text-align: center; }
+        
+        .btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; width: 100%; max-width: 800px; padding-bottom: 50px; }
+        .card { height: 120px; background: linear-gradient(145deg, #1e3a8a 0%, #020617 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; transition: 0.3s; padding: 15px; }
+        .card:hover { transform: translateY(-10px); border-color: var(--glow-blue); }
+
+        .card span { color: white; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; text-align: center; }
+.card img { 
+    margin-bottom: 10px; 
+    max-width: 90%; 
+    object-fit: contain; 
+}
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--primary-blue); border-radius: 10px; }
+/* Extra stijlen voor de ELWIS tabel */
+        .elwis-sticky-col { position: sticky; left: 0; background: #071126; z-index: 10; border-right: 2px solid rgba(59, 130, 246, 0.4); width: 55px; min-width: 55px; }
+        .elwis-header-sticky { position: sticky; top: 0; background: #1e3a8a; z-index: 20; }
+        .elwis-corner { position: sticky; left: 0; top: 0; z-index: 30; background: #1b3891; border-right: 2px solid rgba(59, 130, 246, 0.4); }
+
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+.update-alert {
+    animation: pulse-red 2s infinite;
+    color: #ef4444 !important;
+    border-radius: 50%;
+}
+
+.right {
+    top: 20%;
+    right: 25px;
+    width: 420px;
+    overflow: hidden;
+    /* Zorg dat deze transition regel erbij staat voor het soepel breder worden: */
+    transition: width 0.4s ease-in-out, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+    </style>
+</head>
+<body>
+
+
+    <div class="bg-fixed"></div>
+
+    <div id="side-toggle" class="toggle-tab" onclick="toggleRightPanel()">
+        <svg style="width:24px;height:24px;fill:white" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+    </div>
+
+<nav class="navbar flex justify-between items-center px-10">
+    <div class="flex items-center">
+        <img src="pic/logo.png" alt="Logo" style="height: 85px; width: auto;" onerror="this.style.opacity='0'">
+    </div>
+
+    <h1>MS NEW Jersey</h1>
+
+    <div class="flex items-center gap-6">
+        <div class="relative">
+    <button id="settings-btn" onclick="toggleSettingsMenu()" class="text-white hover:text-blue-400 transition-colors focus:outline-none flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+    </button>
+    
+            
+            <div id="settings-menu" class="hidden absolute right-0 top-[60px] w-64 bg-slate-950/95 backdrop-blur-2xl border border-blue-500/40 rounded-3xl shadow-2xl overflow-hidden z-[2000] ring-1 ring-white/10">
+                <div class="px-5 py-4 bg-blue-500/10 border-b border-white/10">
+                    <h4 class="text-[0.7rem] font-black text-blue-400 uppercase tracking-[3px] text-left">Systeembeheer</h4>
+                </div>
+                <div class="p-2 space-y-1">
+                    <a href="update://" class="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-blue-600/20 text-white transition-all group">
+                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 group-hover:bg-blue-500/30">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        </div>
+                        <div class="flex flex-col text-left">
+                            <span class="text-[0.75rem] font-black uppercase tracking-wide">Update</span>
+                            <span id="version-text" class="text-[0.55rem] text-slate-400 font-bold">Versie synchroniseren</span>
+                        </div>
+                    </a>
+
+                    <button onclick="toggleHelpdesk()" class="w-full flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-emerald-600/20 text-white transition-all group">
+                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 group-hover:bg-emerald-500/30">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        </div>
+                        <div class="flex flex-col text-left">
+                            <span class="text-[0.75rem] font-black uppercase tracking-wide">Helpdesk</span>
+                            <span class="text-[0.55rem] text-slate-400 font-bold">Meld een fout</span>
+                        </div>
+                    </button>
+
+                    <button onclick="location.reload()" class="w-full flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-slate-800 text-white transition-all group">
+                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                        </div>
+                        <div class="flex flex-col text-left">
+                            <span class="text-[0.75rem] font-black uppercase tracking-wide">Herstarten</span>
+                            <span class="text-[0.55rem] text-slate-400 font-bold">Verversen</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-right border-l border-white/10 pl-6">
+            <div id="clock" class="text-2xl font-black text-white leading-none">00:00:00</div>
+            <div id="date" class="text-[9px] text-blue-400 font-bold uppercase tracking-[3px] mt-1">Laden...</div>
+        </div>
+    </div>
+</nav>
+
+<div id="helpdesk-modal" class="fixed inset-0 z-[4000] hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <div class="bg-slate-900 border border-emerald-500/30 rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
+        <h3 class="text-xl font-black text-white uppercase italic mb-2">Helpdesk Support</h3>
+        <p class="text-xs text-slate-400 mb-6">Meld een probleem of stel een vraag aan de beheerder.</p>
+        
+        <form id="helpdesk-form" class="space-y-4">
+            <div>
+                <label class="block text-[0.6rem] font-bold text-emerald-400 uppercase tracking-widest mb-2">onderwerp</label>
+                <input type="text" name="user" required class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-emerald-500 transition-all">
+            </div>
+            <div>
+                <label class="block text-[0.6rem] font-bold text-emerald-400 uppercase tracking-widest mb-2">Omschrijving probleem</label>
+                <textarea name="message" required rows="4" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-emerald-500 transition-all resize-none"></textarea>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="toggleHelpdesk()" class="flex-1 px-6 py-3 rounded-xl border border-white/10 text-white font-bold text-xs uppercase hover:bg-white/5 transition-all">Annuleren</button>
+                <button type="submit" id="submit-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase py-3 rounded-xl shadow-lg transition-all">Verstuur</button>
+            </div>
+        </form>
+        <div id="form-status" class="hidden mt-4 text-center text-xs font-bold uppercase tracking-widest text-emerald-400">Verzenden...</div>
+    </div>
+</div>
+    <h1>MS NEW JERSEY</h1>
+
+    <div class="ml-auto text-right">
+        <div id="clock" class="text-2xl font-black text-white">00:00:00</div>
+        <div id="date" class="text-[9px] text-blue-400 font-bold uppercase tracking-[3px]">Laden...</div>
+    </div>
+</nav>
+
+   <aside class="side-panel left cursor-pointer hover:border-blue-500/50 transition-all duration-300 active:scale-95" onclick="toggleModal()">
+    <h2 class="text-[0.9rem] font-black tracking-[4px] text-blue-400 uppercase mb-6 text-center border-b border-blue-900/30 pb-2">Scheepsgegevens</h2>
+           <div class="data-card"><span class="panel-label">Naam</span><span class="panel-val">NEW JERSEY</span></div>
+        <div class="data-card"><span class="panel-label">ENI Nummer</span><span class="panel-val">06105027</span></div>
+        <div class="data-card"><span class="panel-label">Afmetingen</span><span class="panel-val">135 x 14,2 x 4 m</span></div>
+        <div class="data-card"><span class="panel-label">Tonnage</span><span class="panel-val">5500 T</span></div>
+        <div class="data-card"><span class="panel-label">Capaciteit</span><span class="panel-val">417 TEU</span></div>
+<p class="text-[0.55rem] text-blue-400 font-bold uppercase tracking-[2px] text-center mt-4 opacity-70 italic">Klik voor meer informatie</p>
+    </aside>
+
+   <aside id="right-panel" class="side-panel right flex flex-col">
+    
+    <div class="flex gap-2 mb-4 bg-white/5 p-1 rounded-xl border border-white/10 shrink-0">
+        <button id="btn-main-rws" onclick="switchMainTab('rws')" class="flex-1 py-2 text-[0.65rem] font-black uppercase rounded-lg bg-blue-600 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all">RWS Actueel</button>
+        <button id="btn-main-elwis" onclick="switchMainTab('elwis')" class="flex-1 py-2 text-[0.65rem] font-black uppercase rounded-lg text-slate-400 hover:text-white transition-all">ELWIS </button>
+    </div>
+
+    <div id="rws-container" class="flex flex-col flex-1 relative">
+        <div id="station-search-overlay">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-[0.7rem] font-black text-blue-400 uppercase tracking-widest">Zoek Locatie</span>
+                <button onclick="toggleStationSearch()" class="text-white bg-red-600/30 px-3 py-1 rounded-lg text-xs font-bold">SLUITEN</button>
+            </div>
+            <input type="text" id="station-filter" onkeyup="filterStations()" placeholder="Typ station naam..." class="w-full bg-white/10 border border-white/20 rounded-xl p-3 mb-4 text-white outline-none focus:border-blue-500">
+            <div id="station-list" class="flex-1 overflow-y-auto space-y-1 pr-2 custom-scrollbar"></div>
+        </div>
+
+        <h2 id="rws-title" class="text-[0.7rem] font-black tracking-[4px] text-blue-400 uppercase mb-4 text-center border-b border-blue-900/30 pb-2">Laden...</h2>
+        
+        <div class="tab-container shrink-0">
+            <button class="tab-btn active" id="tab-hoek" onclick="switchRWS('Hoek van Holland')">Hoek v. H</button>
+            <button class="tab-btn" id="tab-dord" onclick="switchRWS('Dordrecht')">Dordrecht</button>
+            <button class="tab-btn !flex-none px-4 bg-blue-600 text-white font-bold" onclick="toggleStationSearch()">+</button>
+        </div>
+
+        <div id="refresh-btn" class="refresh-circle" title="Klik: Verversen | Lang: Auto-Refresh">
+            <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:white"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        </div>
+        
+        <div class="web-mask">
+            <iframe id="rws-frame" src="" style="top: -200px; left: -15%; width: 130%;"></iframe>
+        </div>
+    </div>
+
+<div id="elwis-container" class="hidden flex-col flex-1 relative">
+    
+    <div id="elwis-search-overlay" class="absolute inset-0 bg-[#071126]/95 backdrop-blur-md rounded-2xl p-4 z-50 hidden flex-col">
+        <div class="flex justify-between items-center mb-4">
+            <span class="text-[0.7rem] font-black text-blue-400 uppercase tracking-widest">Wissel ELWIS Pegel</span>
+            <button onclick="toggleElwisSearch()" class="text-white bg-red-600/30 px-3 py-1 rounded-lg text-xs font-bold hover:bg-red-600/50 transition-all">SLUITEN</button>
+        </div>
+        <input type="text" id="elwis-filter" onkeyup="filterElwisStations()" placeholder="Typ pegel naam (bijv. Kaub)..." class="w-full bg-white/10 border border-white/20 rounded-xl p-3 mb-4 text-white outline-none focus:border-blue-500 font-bold">
+        <div id="elwis-station-list" class="flex-1 overflow-y-auto space-y-1 pr-2 custom-scrollbar text-[0.75rem]">
+            </div>
+    </div>
+
+    <h2 id="elwis-title" class="text-[0.7rem] font-black tracking-[4px] text-blue-400 uppercase mb-4 text-center border-b border-blue-900/30 pb-2">ELWIS  Live</h2>
+    
+<div class="tab-container shrink-0">
+    <button class="tab-btn" id="tab-elwis-Maxau" onclick="switchELWIS('Maxau', this)">Maxau</button>
+    <button class="tab-btn" id="tab-elwis-Oestrich" onclick="switchELWIS('Oestrich', this)">Oestrich</button>
+    <button class="tab-btn active" id="tab-elwis-kaub" onclick="switchELWIS('Kaub', this)">Kaub</button>
+    <button class="tab-btn !flex-none px-4 bg-blue-600 text-white font-bold" onclick="toggleElwisSearch()">+</button>
+</div>
+    
+<div class="web-mask bg-[#020617] overflow-x-auto overflow-y-auto custom-scrollbar flex flex-col relative" style="height: 457px; background: rgba(2, 6, 23, 0.8);">
+    <div id="elwis-loading" class="absolute inset-0 flex items-center justify-center text-blue-400 text-[0.7rem] font-black uppercase tracking-widest animate-pulse z-50">Gegevens ophalen...</div>
+    
+    <img id="elwis-maxau-img" class="w-full h-auto rounded-xl p-1 block" src="" alt="ELWIS Maxau Grafiek">
+
+    <table id="elwis-table" class="w-full text-left text-[0.75rem] text-white hidden min-w-[680px] border-collapse select-none">
+        <thead></thead>
+        <tbody id="elwis-tbody" class="divide-y divide-white/5 font-semibold"></tbody>
+    </table>
+</div>
+
+    </aside>
+    
+    <main class="flex flex-col items-center w-full px-4">
+        <div class="search-box">
+            <form action="https://www.google.com/search" method="get" target="_blank">
+                <input type="text" name="q" placeholder="Zoek op Google..." class="search-input">
+            </form>
+        </div>
+
+<div class="btn-grid">
+    <a href="waterstanden.html" target="win_brughoogte" class="card">
+        <img src="pic/Schipzijhoogtesth2.png" style="height: 40px;">
+        <span>Brughoogte</span>
+    </a>
+
+    <a href="reizen.html" target="win_reizen" class="card">
+        <img src="pic/reizen.png" style="height: 80px;">
+        <span>Reizen</span>
+    </a>
+
+    <a href="https://nextlogic-planning.com/" target="win_nextlogic" class="card">
+        <img src="pic/nextlogic_logo.png" style="height: 45px;">
+        <span>Nextlogic</span>
+    </a>
+
+    <a href="https://login.portofantwerpbruges.com/poam/XUI/?service=GlobalAuthenticationPolicyLevel25_poab&goto=https%3A%2F%2Fmy.portofantwerpbruges.com%3A443%2Fagent%2Fcustom-login-response%3Fstate%3DSz1q2otqU2wzWN4ZukCktotGuMo%26service%3DGlobalAuthenticationPolicyLevel25_poab&original_request_url=https%3A%2F%2Fmy.portofantwerpbruges.com%3A443%2Fprofile%2F%3F_gl%3D1*1bauwz3*_gcl_au*MjA0NTczOTg3MC4xNzc5ODgzMzUz*_ga*NzI1NDc0NDcxLjE3Nzk4ODMzNTM.*_ga_DTC7EP43ET*czE3Nzk4ODkzNTYkbzIkZzAkdDE3Nzk4ODkzNTkkajU3JGwwJGgw#login//" target="win_nextlogic" class="card">
+        <img src="pic/BTS.png" style="height: 45px;">
+        <span>BTS</span>
+    </a>
+        <a href="https://webshop.slurink.nl/nl/" target="win_heijmen" class="card">
+        <img src="pic/Sleurink_logo.png" style="height: 45px;">
+        <span>Slurink</span>
+    </a>
+
+    <a href="adn.html" target="win_adn" class="card">
+        <img src="pic/adn.png" style="height: 40px;">
+        <span>ADN</span>
+    </a>
+
+
+
+
+
+    <a href="https://waterinfo.rws.nl/publiek/waterhoogte" target="win_rws" class="card">
+        <img src="pic/rws_logo.png" style="height: 50px;">
+        <span>RWS</span>
+    </a>
+
+  
+
+    <a href="https://fleet.tresco.eu/map" target="win_wijgaart" class="card">
+        <img src="pic/tresco.png" style="height: 40px;">
+        <span>Wijgaart</span>
+    </a>
+
+
+
+
+    <a href="https://hochwasser.rlp.de/" target="win_stremming" class="card">
+        <img src="pic/logo_hochwasser.png" style="height: 45px;">
+        <span>hochwasser</span>
+    </a>
+
+    <a href="https://trello.com/b/FRoIVDXN/new-jersey" target="win_trello" class="card">
+        <img src="pic/trello.png" style="height: 40px;">
+        <span>Trello</span>
+    </a>
+
+    
+    <a href="reefer.html" target="win_trello" class="card">
+        <img src="pic/reefers.png" style="height: 40px;">
+        <span>reefers</span>
+    </a>
+
+
+</div>
+    </main>
+<div id="ship-modal" class="fixed inset-0 z-[3000] hidden flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+    <div class="relative bg-slate-950 border border-blue-500/30 rounded-[2rem] max-w-6xl w-full shadow-[0_0_80px_rgba(30,64,175,0.4)] overflow-hidden flex flex-col h-[90vh]">
+        
+        <div class="flex flex-col md:flex-row items-center border-b border-white/5 bg-white/5 px-6 shrink-0">
+            <div class="py-4 flex-shrink-0">
+                <h3 class="text-xl font-black tracking-tighter text-white uppercase italic leading-none">MS NEW JERSEY</h3>
+                <p class="text-[0.6rem] text-blue-400 font-bold uppercase tracking-[3px] mt-1 opacity-70">Fleet Data Center</p>
+            </div>
+            
+            <div class="flex flex-1 justify-center gap-4 py-3 px-6">
+                <button onclick="switchTab('schip')" id="btn-tab-schip" class="modal-tab-btn px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all">Schip</button>
+                <button onclick="switchTab('bedrijf')" id="btn-tab-bedrijf" class="modal-tab-btn px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all">Bedrijf</button>
+            </div>
+
+            <button onclick="toggleModal()" class="text-slate-500 hover:text-white p-2 bg-white/5 rounded-full transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-hidden relative bg-slate-950">
+            
+<div id="content-schip" class="modal-content-section h-full overflow-y-auto custom-scrollbar p-6 bg-slate-950/20 text-white">
+    <div class="grid grid-cols-1 md:grid-cols-6 gap-8">
+        
+        <section class="md:col-span-3 space-y-6">
+            <div>
+                <h4 class="text-[0.7rem] font-black text-blue-400 uppercase tracking-[4px] mb-4 flex items-center gap-3">
+                    <span class="w-8 h-[1px] bg-blue-500/50"></span>
+                    Specificaties
+                    <span class="flex-grow h-[1px] bg-gradient-to-r from-blue-500/50 to-transparent"></span>
+                </h4>
+                
+                <div class="grid grid-cols-2 gap-4 relative">
+                    <div class="absolute left-1/2 top-4 bottom-4 w-[1px] bg-white/5 hidden md:block"></div>
+                    
+                    <div class="space-y-3 bg-white/[0.03] backdrop-blur-sm p-4 rounded-2xl border border-white/10 shadow-xl">
+                        <div class="flex justify-between items-center"><span class="text-slate-500 text-[0.65rem] uppercase font-bold">Naam</span><span class="text-white font-bold text-xs">New Jersey</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-500 text-[0.65rem] uppercase font-bold">ENI</span><span class="text-white font-mono text-xs">06105027</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-500 text-[0.65rem] uppercase font-bold">FD-Nummer</span><span class="text-white font-bold text-xs">9616</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-500 text-[0.65rem] uppercase font-bold">MMSI</span><span class="text-white font-mono text-xs">244927482</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-500 text-[0.65rem] uppercase font-bold">Bouwjaar</span><span class="text-white font-mono text-xs">2008</span></div>
+                    </div>
+                    
+                    <div class="space-y-3 bg-white/[0.03] backdrop-blur-sm p-4 rounded-2xl border border-white/10 shadow-xl">
+                        <div class="flex justify-between items-center"><span class="text-slate-400 text-[0.65rem] uppercase font-bold">Lengte</span><span class="text-white font-bold text-xs">135 mtr</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-400 text-[0.65rem] uppercase font-bold">Breedte</span><span class="text-white font-bold text-xs">14,2 mtr</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-400 text-[0.65rem] uppercase font-bold">Diepgang</span><span class="text-white font-bold text-xs">4 mtr</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-400 text-[0.65rem] uppercase font-bold">Tonnage</span><span class="text-white font-bold text-xs">5500 T</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-400 text-[0.65rem] uppercase font-bold">Spant hoogte</span><span class="text-blue-400 font-bold text-xs">0,6 mtr</span></div>
+                   </div>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-[0.7rem] font-black text-blue-500 uppercase tracking-[4px] mb-4 flex items-center gap-3">
+                    <span class="w-8 h-[1px] bg-blue-500/50"></span>
+                    Installaties
+                    <span class="flex-grow h-[1px] bg-gradient-to-r from-blue-500/50 to-transparent"></span>
+                </h4>
+                <div class="space-y-2">
+                    <div class="group flex justify-between items-center bg-gradient-to-r from-blue-600/20 to-blue-900/10 p-4 rounded-2xl border border-blue-500/30 hover:border-blue-400/60 transition-all shadow-lg">
+                        <div class="flex flex-col">
+                            <span class="text-blue-400 font-black uppercase text-[0.55rem] tracking-widest mb-1">Hoofdmotor</span>
+                            <span class="font-bold text-white text-xs">2x Mitsubishi S16r-23MPTAW-3 </span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-blue-300 font-mono text-xs block">3405 PK</span>
+                            <span class="text-blue-500/50 text-[0.5rem] uppercase font-bold"></span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-white/[0.03] p-3 rounded-xl border border-white/10 flex justify-between items-center">
+                            <div>
+                                <p class="text-slate-500 text-[0.55rem] uppercase font-bold">Kopschroef</p>
+                                <p class="text-white font-bold text-[0.7rem]">2x cummins verhaar omega-jet</p>
+                            </div>
+                            <span class="text-[0.65rem] font-mono text-slate-400">1120 PK</span>
+                        </div>
+                        <div class="bg-white/[0.03] p-3 rounded-xl border border-white/10 flex justify-between items-center">
+                            <div>
+                                <p class="text-slate-500 text-[0.55rem] uppercase font-bold">Generatoren</p>
+                                <p class="text-white font-bold text-[0.7rem]">John Deere voor / achter</p>
+                            </div>
+                            <span class="text-[0.65rem] font-mono text-slate-400">67KVA / 120 KVA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="md:col-span-3 space-y-4">
+            <h4 class="text-[0.7rem] font-black text-blue-500 uppercase tracking-[4px] mb-4 flex items-center gap-3">
+                <span class="w-8 h-[1px] bg-blue-500/50"></span>
+                Belading & Meetbrief
+                <span class="flex-grow h-[1px] bg-gradient-to-r from-blue-500/50 to-transparent"></span>
+            </h4>
+            
+            <div class="flex gap-4 items-stretch h-[245px]">
+                <div class="flex-none w-32 bg-black/40 rounded-2xl border border-white/10 overflow-hidden flex flex-col shadow-2xl">
+         
+                    <div class="flex-grow flex flex-col divide-y divide-white/5 font-mono text-xs">
+                        <div class="flex-1 flex justify-between items-center px-3 hover:bg-white/5">
+                            <span class="text-slate-500 text-[0.6rem] font-bold">5 LAGEN</span>
+                            <span class="font-bold text-blue-400">417</span>
+                        </div>
+                        <div class="flex-1 flex justify-between items-center px-3 hover:bg-white/5">
+                            <span class="text-slate-500 text-[0.6rem] font-bold">4 LAGEN</span>
+                            <span class="font-bold text-blue-400">363</span>
+                        </div>
+                        <div class="flex-1 flex justify-between items-center px-3 hover:bg-white/5">
+                            <span class="text-slate-500 text-[0.6rem] font-bold">3 LAGEN</span>
+                            <span class="font-bold text-blue-400">249</span>
+                        </div>
+                        <div class="flex-1 flex justify-between items-center px-3 hover:bg-white/5">
+                            <span class="text-slate-500 text-[0.6rem] font-bold">2 LAGEN</span>
+                            <span class="font-bold text-blue-400">165</span>
+                        </div>
+                        <div class="flex-1 flex justify-between items-center px-3 bg-blue-600/20 font-bold border-t border-blue-500/30">
+                            <span class="text-blue-300 text-[0.6rem]">1 LAAG</span>
+                            <span class="text-white">81</span>
+                        </div>
+                    </div>
+                </div>
+
+<div class="flex-grow space-y-3">
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-black/40 rounded-xl border border-white/10 overflow-hidden font-mono text-xs">
+                        <table class="w-full table-fixed divide-y divide-white/5">
+                            <tbody>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">170</td><td class="py-2 pr-2 text-right">1344</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">175</td><td class="py-2 pr-2 text-right">1432</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">180</td><td class="py-2 pr-2 text-right">1520</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">185</td><td class="py-2 pr-2 text-right">1608</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">190</td><td class="py-2 pr-2 text-right">1697</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">195</td><td class="py-2 pr-2 text-right">1785</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">200</td><td class="py-2 pr-2 text-right">1874</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">205</td><td class="py-2 pr-2 text-right">1963</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">210</td><td class="py-2 pr-2 text-right">2051</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">215</td><td class="py-2 pr-2 text-right">2140</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">220</td><td class="py-2 pr-2 text-right">2229</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">225</td><td class="py-2 pr-2 text-right">2318</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">230</td><td class="py-2 pr-2 text-right">2407</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">235</td><td class="py-2 pr-2 text-right">2515</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">240</td><td class="py-2 pr-2 text-right">2586</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">245</td><td class="py-2 pr-2 text-right">2676</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">250</td><td class="py-2 pr-2 text-right">2765</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">255</td><td class="py-2 pr-2 text-right">2855</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">260</td><td class="py-2 pr-2 text-right">2945</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">265</td><td class="py-2 pr-2 text-right">3035</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">270</td><td class="py-2 pr-2 text-right">3143</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">275</td><td class="py-2 pr-2 text-right">3233</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">280</td><td class="py-2 pr-2 text-right">3305</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">285</td><td class="py-2 pr-2 text-right">3396</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bg-black/40 rounded-xl border border-white/10 overflow-hidden font-mono text-xs">
+                        <table class="w-full table-fixed divide-y divide-white/5">
+                            <tbody>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">290</td><td class="py-2 pr-2 text-right">3486</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">295</td><td class="py-2 pr-2 text-right">3577</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">300</td><td class="py-2 pr-2 text-right">3668</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">305</td><td class="py-2 pr-2 text-right">3758</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">310</td><td class="py-2 pr-2 text-right">3849</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">315</td><td class="py-2 pr-2 text-right">3940</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">320</td><td class="py-2 pr-2 text-right">4031</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">325</td><td class="py-2 pr-2 text-right">4123</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">330</td><td class="py-2 pr-2 text-right">4214</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">335</td><td class="py-2 pr-2 text-right">4305</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">340</td><td class="py-2 pr-2 text-right">4396</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">345</td><td class="py-2 pr-2 text-right">4488</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">350</td><td class="py-2 pr-2 text-right">4580</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">355</td><td class="py-2 pr-2 text-right">4671</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">360</td><td class="py-2 pr-2 text-right">4763</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">365</td><td class="py-2 pr-2 text-right">4855</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">370</td><td class="py-2 pr-2 text-right">4947</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">375</td><td class="py-2 pr-2 text-right">5039</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">380</td><td class="py-2 pr-2 text-right">5131</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">385</td><td class="py-2 pr-2 text-right">5223</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">390</td><td class="py-2 pr-2 text-right">5313</td></tr>
+<tr><td class="py-2 text-center text-blue-400 border-r border-white/5 w-8 italic">395</td><td class="py-2 pr-2 text-right">5407</td></tr>
+
+                                <tr class="bg-blue-600/40 text-white font-bold italic"><td class="py-2 text-center border-r border-white/10 w-8">400</td><td class="py-2 pr-2 text-right font-black">5499</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    </div>
+
+
+
+<div id="content-bedrijf" class="modal-content-section h-full hidden overflow-y-auto custom-scrollbar p-8 bg-slate-900/10">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+        
+        <div class="space-y-6">
+            <h4 class="text-[0.7rem] font-black text-blue-400 uppercase tracking-[4px] mb-4 flex items-center gap-3">
+                <span class="w-8 h-[1px] bg-blue-500/50"></span>
+                Organisatie
+                <span class="flex-grow h-[1px] bg-gradient-to-r from-blue-500/50 to-transparent"></span>
+            </h4>
+            
+<div class="bg-white/5 p-6 rounded-[2rem] border border-white/10 space-y-5 shadow-xl">
+                <div class="flex items-center gap-6 py-4">
+                    <div class="w-24 h-24 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                        <img src="pic/logo.png" alt="Logo" class="w-full h-full object-contain" onerror="this.parentElement.innerHTML='<span class=\'text-blue-400 font-black text-4xl italic\'>NM</span>'">
+                    </div>
+                    <div>
+                        <h5 class="text-white font-black text-xl uppercase italic leading-none">Yellowstone shipping AG</h5>
+                    </div>
+                </div>
+
+                <div class="space-y-4 pt-4 border-t border-white/5 text-sm">
+                    <div class="flex flex-col">
+                        <span class="text-[0.6rem] text-slate-500 uppercase font-bold italic">Bezoekadres</span>
+                        <span class="text-white font-medium">Neuhofstrasse 3D, 6340 Baar, Schweiz (CH)</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex flex-col">
+                            <span class="text-[0.6rem] text-slate-500 uppercase font-bold italic">KVK Nummer</span>
+                            <span class="text-white font-mono">CH-170.3.048.119-6</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-[0.6rem] text-slate-500 uppercase font-bold italic">BTW Nummer</span>
+                            <span class="text-white font-mono">CHE-495.285.665</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[0.6rem] text-slate-500 uppercase font-bold italic">E-mail Algemeen</span>
+                        <span class="text-blue-400 font-bold">tech@yellowstone-shipping.ch</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[0.6rem] text-slate-500 uppercase font-bold italic">Telefoon</span>
+                        <span class="text-white text-xl font-black">+41 41 766 41 56</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <h4 class="text-[0.7rem] font-black text-blue-400 uppercase tracking-[4px] mb-4 flex items-center gap-3">
+                <span class="w-8 h-[1px] bg-blue-500/50"></span>
+                Bedrijfsauto
+                <span class="flex-grow h-[1px] bg-gradient-to-r from-blue-500/50 to-transparent"></span>
+            </h4>
+            
+            <div class="bg-white/5 p-6 rounded-[2rem] border border-white/10 space-y-6">
+                <div>
+                    <p class="text-white font-black text-2xl uppercase italic leading-tight">RENAULT</p>
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">CLIO</p>
+                </div>
+
+                <div class="relative w-full h-16 bg-[#ffca05] rounded-md border-2 border-black flex items-center shadow-lg">
+                    <div class="w-10 h-full bg-[#003399] flex flex-col items-center justify-center text-white rounded-l-sm">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Flag_of_Europe.svg" class="w-5 mb-0.5">
+                        <span class="text-[0.7rem] font-bold leading-none">NL</span>
+                    </div>
+                    <div class="flex-1 text-center">
+                        <span class="text-4xl font-black text-black tracking-tighter" style="font-family: 'Arial Black', sans-serif;">P-844-RP</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 pt-2">
+                    <div class="bg-black/40 p-3 rounded-2xl border border-white/5">
+                        <span class="block text-[0.55rem] text-slate-500 uppercase font-bold">APK Verval</span>
+                        <span class="text-white text-sm font-black"></span>
+                    </div>
+                    <div class="bg-black/40 p-3 rounded-2xl border border-white/5">
+                        <span class="block text-[0.55rem] text-slate-500 uppercase font-bold">KM Stand</span>
+                        <span class="text-white text-sm font-mono font-bold">44.055</span>
+                    </div>
+                </div>
+                
+
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <h4 class="text-[0.7rem] font-black text-blue-400 uppercase tracking-[4px] mb-4 flex items-center gap-3">
+                <span class="w-8 h-[1px] bg-blue-500/50"></span>
+                Verzekering
+                <span class="flex-grow h-[1px] bg-gradient-to-r from-blue-500/50 to-transparent"></span>
+            </h4>
+            
+            <div class="bg-blue-600/5 p-6 rounded-[2rem] border border-blue-500/30 space-y-6 shadow-[0_0_40px_rgba(59,130,246,0.1)]">
+                <div>
+                    <span class="text-[0.6rem] text-blue-400 font-black uppercase tracking-widest">Maatschappij</span>
+                    <p class="text-white text-2xl font-black uppercase italic leading-tight">TVM Verzekeringen</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="flex flex-col">
+                        <span class="text-[0.6rem] text-slate-500 uppercase font-bold italic">Polisnummer Schip</span>
+                        <span class="text-white text-xl font-mono font-bold tracking-tight">--</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[0.6rem] text-slate-500 uppercase font-bold italic">E-mail Schadeafdeling</span>
+                        <span class="text-blue-400 text-base font-bold underline decoration-blue-500/30">assistance@tvm.nl</span>
+                    </div>
+                </div>
+
+                <div class="p-5 bg-red-600/10 rounded-2xl border border-red-500/30 group">
+                    <span class="text-[0.6rem] text-red-400 font-black uppercase tracking-widest">Noodnummer (24/7)</span>
+                    <p class="text-white font-black text-2xl mt-1 tracking-tighter group-hover:scale-105 transition-transform origin-left">+31 (0528) 29 29 11</p>
+                </div>
+
+               <div class="group relative bg-gradient-to-br from-white/10 to-white/5 border border-white/10 rounded-2xl p-1 transition-all hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.2)]">
+    <a href="schadeformulier-template.docx" download="Schadeformulier_MS_New_Jersey.docx" class="flex items-center justify-between p-4 bg-black/40 rounded-xl overflow-hidden relative">
+        
+        <div class="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/5 transition-colors"></div>
+
+        <div class="flex items-center gap-4 relative z-10">
+            <div class="w-12 h-12 bg-blue-600/20 rounded-lg flex items-center justify-center border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+            </div>
+            <div>
+                <h4 class="text-white text-[0.8rem] font-black uppercase tracking-[1px]">Schade formulier</h4>
+
+            </div>
+        </div>
+
+        <div class="bg-blue-600 text-white text-[0.6rem] font-black px-3 py-1.5 rounded-md tracking-tighter group-hover:scale-110 transition-transform relative z-10">
+            DOWNLOAD
+        </div>
+    </a>
+</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+  <script>
+// STEL JE HUIDIGE VERSIE HIER IN
+        const currentVersion = "1.1.7"; 
+const githubUrl = "https://raw.githubusercontent.com/scheepsapp/Update_Ms_New_Jersey/refs/heads/main/index.html";
+
+async function checkForUpdates() {
+    try {
+        // We voegen een uniek nummer toe aan de URL zodat GitHub nooit een oude versie stuurt
+        const response = await fetch(githubUrl + "?nocache=" + new Date().getTime());
+        if (!response.ok) throw new Error('Netwerk response was niet ok');
+        
+        const text = await response.text();
+        const match = text.match(/const currentVersion = "(.*?)"/);
+        
+        // .trim() verwijdert onzichtbare spaties of enters
+        const remoteVersion = match ? match[1].trim() : null;
+        const localVersion = currentVersion.trim();
+
+        // DEBUG: Dit zie je in de Console (F12)
+        console.log("DEBUG: Lokaal [" + localVersion + "] vs GitHub [" + remoteVersion + "]");
+
+        const settingsBtn = document.getElementById('settings-btn');
+        const versionText = document.getElementById('version-text');
+
+        if (remoteVersion && remoteVersion !== localVersion) {
+            // ZE ZIJN ANDERS -> UPDATE NODIG
+            settingsBtn?.classList.add('update-alert');
+            if (versionText) {
+                versionText.textContent = "Update beschikbaar: " + remoteVersion;
+                versionText.style.color = "#ef4444";
+            }
+        } else {
+            // ZE ZIJN GELIJK -> ALLES OK
+            settingsBtn?.classList.remove('update-alert');
+            if (versionText) {
+                versionText.textContent = "Versie up-to-date (" + localVersion + ")";
+                versionText.style.color = ""; 
+            }
+        }
+    } catch (error) {
+        console.error("Update check mislukt:", error);
+    }
+}
+window.addEventListener('load', () => {
+    setTimeout(checkForUpdates, 2000);
+    
+    // Kijk daarna elke 30 minuten automatisch of er een update is
+    setInterval(checkForUpdates, 1800000); 
+});
+function toggleWifiQR() {
+    const wifiOverlay = document.getElementById('wifi-overlay');
+    wifiOverlay.classList.toggle('hidden');   
+}
+const stations = [ { id: 1, name: "Hoek van Holland", url: "https://waterinfo.rws.nl/publiek/waterhoogte/hoekvanholland/details", top: "-320px", left: "-15%", width: "130%" }, 
+{ id: 2, name: "Dordrecht", url: "https://waterinfo.rws.nl/publiek/waterhoogte/dordrecht.oudemaas.benedenmerwede/details", top: "-340px", left: "-15%", width: "130%" }, 
+{ id: 3, name: "Lobith", url: "https://waterinfo.rws.nl/publiek/waterhoogte/lobith.bovenrijn.tolkamer/details", top: "-320px", left: "-15%", width: "130%" }, 
+{ id: 4, name: "Nijmegen", url: "https://waterinfo.rws.nl/publiek/waterhoogte/nijmegen.waal/details", top: "-320px", left: "-15%", width: "130%" }, 
+{ id: 5, name: "Tiel", url: "https://waterinfo.rws.nl/publiek/waterhoogte/tiel.waal/details", top: "-320px", left: "-15%", width: "130%" },
+{ id: 6, name: "Zaltbommel", url: "https://waterinfo.rws.nl/publiek/waterhoogte/zaltbommel/details", top: "-350px", left: "-15%", width: "130%" },
+{ id: 7, name: "Dalem", url: "https://waterinfo.rws.nl/publiek/waterhoogte/dalem/details", top: "-350px", left: "-15%", width: "130%" },
+{ id: 8, name: "Werkendam", url: "https://waterinfo.rws.nl/publiek/waterhoogte/werkendam.nieuwemerwede/details", top: "-350px", left: "-15%", width: "130%" }, 
+{ id: 9, name: "Moerdijk", url: "https://waterinfo.rws.nl/publiek/waterhoogte/moerdijk/details", top: "-350px", left: "-15%", width: "130%" }, 
+{ id: 10, name: "Yerseke", url: "https://waterinfo.rws.nl/publiek/waterhoogte/yerseke/details", top: "-350px", left: "-15%", width: "130%" }, 
+{ id: 11, name: "Hansweert", url: "https://waterinfo.rws.nl/publiek/waterhoogte/hansweert/details", top: "-350px", left: "-15%", width: "130%" }, 
+{ id: 12, name: "Bath", url: "https://waterinfo.rws.nl/publiek/waterhoogte/rilland.bath/details", top: "-350px", left: "-15%", width: "130%" }, 
+{ id: 13, name: "Terneuzen", url: "https://waterinfo.rws.nl/publiek/waterhoogte/terneuzen/details", top: "-350px", left: "-15%", width: "130%" }, 
+{ id: 14, name: "Vlissingen", url: "https://waterinfo.rws.nl/publiek/waterhoogte/vlissingen/details", top: "-350px", left: "-15%", width: "130%" }, 
+{ id: 15, name: "Spijkenisse", url: "https://waterinfo.rws.nl/publiek/waterhoogte/spijkenisse.oudemaas/details", top: "-350px", left: "-15%", width: "130%" }, 
+{ id: 16, name: "Vlaardingen", url: "https://waterinfo.rws.nl/publiek/waterhoogte/vlaardingen/details", top: "-350px", left: "-15%", width: "130%" }, 
+{ id: 17, name: "Rotterdam", url: "https://waterinfo.rws.nl/publiek/waterhoogte/rotterdam.nieuwemaas.boerengat/details", top: "-350px", left: "-15%", width: "130%" }, 
+{ id: 18, name: "Maassluis", url: "https://waterinfo.rws.nl/publiek/waterhoogte/maassluis/details", top: "-350px", left: "-15%", width: "130%" } ];
+
+        let favorites = JSON.parse(localStorage.getItem('ship_favorites')) || [];
+
+        function toggleFavorite(id, event) {
+            event.stopPropagation();
+            if (favorites.includes(id)) { favorites = favorites.filter(favId => favId !== id); } 
+            else { favorites.push(id); }
+            localStorage.setItem('ship_favorites', JSON.stringify(favorites));
+            renderStations(document.getElementById('station-filter').value);
+        }
+
+
+        function renderStations(filter = '') {
+            const list = document.getElementById('station-list');
+            list.innerHTML = '';
+            const sorted = [...stations].sort((a, b) => {
+                const aFav = favorites.includes(a.id);
+                const bFav = favorites.includes(b.id);
+                if (aFav && !bFav) return -1;
+                if (!aFav && bFav) return 1;
+                return a.name.localeCompare(b.name);
+            });
+            sorted.filter(s => s.name.toLowerCase().includes(filter.toLowerCase())).forEach(s => {
+                const isFav = favorites.includes(s.id);
+                const div = document.createElement('div');
+                div.className = 'station-item';
+                div.innerHTML = `<span class="station-name">${s.name}</span><span class="star-icon ${isFav ? 'is-fav' : ''}" onclick="toggleFavorite(${s.id}, event)">★</span>`;
+                div.onclick = () => { applyStation(s); toggleStationSearch(); };
+                list.appendChild(div);
+            });
+        }
+
+        function applyStation(stationObj) {
+            const frame = document.getElementById('rws-frame');
+            document.getElementById('rws-title').textContent = stationObj.name + " Live";
+            frame.src = stationObj.url;
+            frame.style.top = stationObj.top;
+            frame.style.left = stationObj.left;
+            frame.style.width = stationObj.width;
+            document.getElementById('tab-hoek').classList.remove('active');
+            document.getElementById('tab-dord').classList.remove('active');
+        }
+
+        function switchRWS(name) {
+            const station = stations.find(s => s.name === name);
+            if (station) {
+                applyStation(station);
+                if(name === 'Hoek van Holland') document.getElementById('tab-hoek').classList.add('active');
+                if(name === 'Dordrecht') document.getElementById('tab-dord').classList.add('active');
+            }
+        }
+
+        function toggleStationSearch() {
+            const overlay = document.getElementById('station-search-overlay');
+            const isVisible = overlay.style.display === 'flex';
+            overlay.style.display = isVisible ? 'none' : 'flex';
+            if(!isVisible) { renderStations(); document.getElementById('station-filter').focus(); }
+        }
+
+        function filterStations() { renderStations(document.getElementById('station-filter').value); }
+        function toggleRightPanel() { document.getElementById('right-panel').classList.toggle('hidden-panel'); }
+        
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleTimeString('nl-NL');
+            document.getElementById('date').textContent = now.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' });
+        }
+
+        const refreshBtn = document.getElementById('refresh-btn');
+        let autoRefreshInterval = null;
+        let pressTimer;
+
+        function refreshRWS() { const f = document.getElementById('rws-frame'); f.src = f.src; }
+        refreshBtn.addEventListener('mousedown', () => { pressTimer = setTimeout(() => { 
+            if(!autoRefreshInterval) {
+                refreshBtn.classList.add('auto-active');
+                autoRefreshInterval = setInterval(refreshRWS, 600000);
+            } else {
+                refreshBtn.classList.remove('auto-active');
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }, 1000); });
+        refreshBtn.addEventListener('mouseup', () => { clearTimeout(pressTimer); refreshRWS(); });
+
+window.onload = () => {
+    switchRWS('Hoek van Holland');
+    updateClock();
+    setInterval(updateClock, 1000);
+    initStationSearch(); // of iets vergelijkbaars
+};
+
+
+function toggleSettingsMenu() {
+    const menu = document.getElementById('settings-menu');
+    menu.classList.toggle('hidden');
+}
+
+// Sluit het menu als je buiten het menu klikt
+window.addEventListener('click', function(e) {
+    const menu = document.getElementById('settings-menu');
+    const btn = menu.previousElementSibling;
+    if (!menu.classList.contains('hidden')) {
+        if (!menu.contains(e.target) && !btn.contains(e.target)) {
+            menu.classList.add('hidden');
+        }
+    }
+});
+function toggleModal() {
+    const modal = document.getElementById('ship-modal');
+    modal.classList.toggle('hidden');
+    if (!modal.classList.contains('hidden')) {
+        switchTab('schip');
+    }
+}
+
+function switchTab(tabId) {
+    // Verberg alle content
+    document.querySelectorAll('.modal-content-section').forEach(section => {
+        section.classList.add('hidden');
+    });
+
+    // Toon de juiste tab
+    const target = document.getElementById('content-' + tabId);
+    if (target) target.classList.remove('hidden');
+
+    // Update knop styles
+    document.querySelectorAll('.modal-tab-btn').forEach(btn => {
+        btn.classList.remove('bg-blue-600/20', 'text-blue-400', 'border-blue-500/50');
+        btn.classList.add('text-slate-500');
+    });
+
+    const activeBtn = document.getElementById('btn-tab-' + tabId);
+    if (activeBtn) {
+        activeBtn.classList.add('bg-blue-600/20', 'text-blue-400', 'border-blue-500/50');
+        activeBtn.classList.remove('text-slate-500');
+    }
+}
+
+function toggleWifiQR() {
+    const overlay = document.getElementById('wifi-overlay');
+    overlay.classList.toggle('hidden');
+}
+
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxhfxioLpHgg9GwGgsO1kNYbKyDk9KoRRvoodpY-hyUokfQbdIasr6o5ovk0w9nTubrMw/exec";
+
+function toggleHelpdesk() {
+    const modal = document.getElementById('helpdesk-modal');
+    modal.classList.toggle('hidden');
+    document.getElementById('settings-menu').classList.add('hidden');
+}
+
+document.getElementById('helpdesk-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    const status = document.getElementById('form-status');
+    const formData = new FormData(this);
+
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    status.classList.remove('hidden');
+    status.textContent = "Bericht wordt verzonden...";
+
+    try {
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Belangrijk voor Google Scripts
+            body: formData
+        });
+
+        status.textContent = "Bedankt! Bericht is verzonden.";
+        setTimeout(() => {
+            toggleHelpdesk();
+            this.reset();
+            status.classList.add('hidden');
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        }, 3000);
+    } catch (error) {
+        status.textContent = "Fout bij verzenden. Probeer later opnieuw.";
+        btn.disabled = false;
+        btn.style.opacity = '1';
+    }
+});
+let elwisLoaded = false;
+var huidigeElwisPegel = "Kaub"; 
+
+
+
+const elwisStations = [
+    { name: "Maxau", info: "" },  
+    { name: "Oestrich", info: "" },
+    { name: "Kaub", info: "" },
+    { name: "Koblenz", info: "" },
+    { name: "Köln", info: "" },
+    { name: "Dusseldorf", info: "" },
+    { name: "Duisburg", info: "" },
+    { name: "Emmerich", info: "" },
+  
+    
+
+
+];
+
+// 2. Schakelen tussen de hoofdtabs RWS en ELWIS (Nu volledig waterdicht voor Maxau)
+function switchMainTab(tab) {
+    const rwsCont = document.getElementById('rws-container');
+    const elwisCont = document.getElementById('elwis-container');
+    const btnRws = document.getElementById('btn-main-rws');
+    const btnElwis = document.getElementById('btn-main-elwis');
+
+    if (tab === 'rws') {
+        const rightPanel = document.getElementById('right-panel');
+        if (rightPanel) rightPanel.style.width = "420px";
+        
+        if (rwsCont) { rwsCont.classList.remove('hidden'); rwsCont.classList.add('flex'); }
+        if (elwisCont) { elwisCont.classList.add('hidden'); elwisCont.classList.remove('flex'); }
+        
+        if (btnRws) btnRws.className = "flex-1 py-2 text-[0.65rem] font-black uppercase rounded-lg bg-blue-600 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all";
+        if (btnElwis) btnElwis.className = "flex-1 py-2 text-[0.65rem] font-black uppercase rounded-lg text-slate-400 hover:text-white transition-all";
+    } else {
+        if (rwsCont) { rwsCont.classList.add('hidden'); rwsCont.classList.remove('flex'); }
+        if (elwisCont) { elwisCont.classList.remove('hidden'); elwisCont.classList.add('flex'); }
+        
+        if (btnElwis) btnElwis.className = "flex-1 py-2 text-[0.65rem] font-black uppercase rounded-lg bg-blue-600 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all";
+        if (btnRws) btnRws.className = "flex-1 py-2 text-[0.65rem] font-black uppercase rounded-lg text-slate-400 hover:text-white transition-all";
+        
+        // FIX: Activeer direct de actieve subtab, zodat Maxau of de tabel direct geladen wordt
+        switchELWIS(huidigeElwisPegel);
+    }
+}
+
+// 3. Open of sluit de ELWIS zoeklijst overlay
+function toggleElwisSearch() {
+    const overlay = document.getElementById('elwis-search-overlay');
+    if (!overlay) return;
+    overlay.classList.toggle('hidden');
+    if (!overlay.classList.contains('hidden')) {
+        document.getElementById('elwis-filter').value = '';
+        initElwisStationSearch(); 
+        document.getElementById('elwis-filter').focus();
+    }
+}
+
+// 4. Bouw de klikbare pegels op in de overlay
+function initElwisStationSearch() {
+    const lijstDiv = document.getElementById('elwis-station-list');
+    if (!lijstDiv) return;
+    lijstDiv.innerHTML = '';
+    
+    elwisStations.forEach(station => {
+        const btn = document.createElement('button');
+        btn.className = "w-full text-left p-3 rounded-xl bg-white/5 hover:bg-blue-600/30 border border-white/5 hover:border-blue-500/50 flex justify-between items-center transition-all mb-1 uppercase font-bold tracking-wider";
+        btn.innerHTML = `
+            <span>${station.name}</span>
+            <span class="text-[0.6rem] text-slate-400 font-mono normal-case font-normal">${station.info}</span>
+        `;
+        btn.onclick = () => {
+            switchELWIS(station.name);
+            toggleElwisSearch();
+        };
+        lijstDiv.appendChild(btn);
+    });
+}
+
+// 5. Live filteren van de pegels tijdens het typen
+function filterElwisStations() {
+    const query = document.getElementById('elwis-filter').value.toUpperCase();
+    const knoppen = document.getElementById('elwis-station-list').getElementsByTagName('button');
+    
+    for (let i = 0; i < knoppen.length; i++) {
+        const txt = knoppen[i].textContent || knoppen[i].innerText;
+        knoppen[i].style.display = txt.toUpperCase().includes(query) ? "" : "none";
+    }
+}
+
+// 6. Wisselen van actieve ELWIS pegel
+function switchELWIS(pegelNaam) {
+    huidigeElwisPegel = pegelNaam.charAt(0).toUpperCase() + pegelNaam.slice(1).toLowerCase();
+    
+    if (huidigeElwisPegel === "Koln" || huidigeElwisPegel === "Köln") {
+        huidigeElwisPegel = "Köln";
+    }
+
+    const elwisTabel = document.getElementById('elwis-table');
+    const elwisLader = document.getElementById('elwis-loading');
+    const maxauImg = document.getElementById('elwis-maxau-img');
+    const rightPanel = document.getElementById('right-panel');
+
+    const titleEl = document.getElementById('elwis-title');
+    if (titleEl) titleEl.textContent = "ELWIS " + huidigeElwisPegel.toUpperCase() + " Live";
+
+    // === SPECIFIEKE UITZONDERING VOOR MAXAU ===
+    if (huidigeElwisPegel === "Maxau") {
+        if (elwisLader) elwisLader.classList.add('hidden');
+        if (elwisTabel) elwisTabel.classList.add('hidden');
+        if (rightPanel) rightPanel.style.width = "700px";
+
+        if (maxauImg) {
+            maxauImg.classList.remove('hidden');
+            // Schone URL-opbouw voor weserv.nl met een unieke cachebuster &cb aan het eind
+            maxauImg.src = "https://script.google.com/macros/s/AKfycbywNjmjT3c16pQf2pEdtZnBARo5aUHFR9buzboq4j1zuPbzyOYHyty2xYeNvV-RyZ7kiQ/exec" + Date.now();
+        }
+
+        stijlActieveElwisTab();
+        return;
+    }
+    // === EINDE UITZONDERING MAXAU ===
+
+    if (maxauImg) maxauImg.classList.add('hidden');  
+    if (rightPanel) rightPanel.style.width = "750px"; 
+    
+    if (elwisLader) elwisLader.classList.remove('hidden');
+    if (elwisTabel) elwisTabel.classList.add('hidden');
+    
+    stijlActieveElwisTab();
+    haalElwisDataOp();
+}
+
+// 7. Tab-knoppen de actieve 'blauwe' kleur geven
+function stijlActieveElwisTab() {
+    if (document.getElementById('tab-elwis-kaub')) {
+        document.getElementById('tab-elwis-kaub').classList.toggle('active', huidigeElwisPegel === 'Kaub');
+    }
+    if (document.getElementById('tab-elwis-Oestrich')) {
+        document.getElementById('tab-elwis-Oestrich').classList.toggle('active', huidigeElwisPegel === 'Oestrich');
+    }
+    if (document.getElementById('tab-elwis-Maxau')) {
+        document.getElementById('tab-elwis-Maxau').classList.toggle('active', huidigeElwisPegel === 'Maxau');
+    }
+}
+
+// 8. Haal tabeldata op via Google Script JSONP
+function haalElwisDataOp() {
+    var oudScript = document.getElementById('elwis-script-loader');
+    if (oudScript) { oudScript.remove(); }
+
+    var scriptURL = "https://script.google.com/macros/s/AKfycbwL5pCqpCv_b3LeNRsNtb3zuVJNXbHMWlGNrbiaZ60JzGdPLqF6ytTOT8h-eR__Au00Aw/exec";
+    var volledigeURL = scriptURL + "?tab=" + encodeURIComponent(huidigeElwisPegel);
+
+    var nieuwScript = document.createElement('script');
+    nieuwScript.id = 'elwis-script-loader';
+    nieuwScript.src = volledigeURL;
+    
+    document.body.appendChild(nieuwScript);
+}
+
+// 9. Hulpfunctie voor styling tabel-trends
+function formatteerStandDashboard(stand, trend) {
+    let s = stand ? stand.toString().trim() : "";
+    let t = trend ? trend.toString().trim() : "";
+    if (s === "" || s === "--") return "<span class='text-slate-500 font-normal'>--</span>";
+    let trendHtml = "";
+    if (t && t !== "--" && t !== "(--)") {
+        let kl = t.includes("-") ? "text-red-400" : (t.includes("+") ? "text-emerald-400" : "text-slate-400");
+        trendHtml = `<span class="${kl} ml-1 font-bold font-mono text-[0.65rem]">${t}</span>`;
+    }
+    return `<span class="font-bold text-white font-mono">${s}</span>${trendHtml}`;
+}
+
+// 9. De callback functie die de middelgrote, gelijk verdeelde tabel opbouwt
+function bouwElwisTabel(data) {
+    document.getElementById('elwis-loading').classList.add('hidden');
+    const tabel = document.getElementById('elwis-table');
+    tabel.classList.remove('hidden');
+
+    const thead = tabel.querySelector('thead');
+    thead.innerHTML = `
+        <tr class="text-[0.65rem] uppercase tracking-wider text-slate-300">
+            <th rowspan="2" class="p-1 border-b border-white/10 elwis-corner text-center">Uhr</th>
+            <th class="p-1 border-r border-white/10 border-b border-white/10 text-center elwis-header-sticky font-bold">${data.datums.gisteren || "Gist."}</th>
+            <th colspan="2" class="p-1 border-r border-white/10 border-b border-white/10 text-center elwis-header-sticky font-bold text-blue-400 bg-blue-950/20">Heute (${data.datums.vandaag || "Vand."})</th>
+            <th class="p-1 border-r border-white/10 border-b border-white/10 text-center elwis-header-sticky font-bold">${data.datums.morgen || "Morg."}</th>
+            <th colspan="2" class="p-1 border-r border-white/10 border-b border-white/10 text-center elwis-header-sticky font-bold">${data.datums.overmorgen || "dag2."}</th>      
+          <th class="p-1 border-b border-white/10 text-center elwis-header-sticky font-bold">${data.datums.dagNaOvermorgen || "Dag +3"}</th>
+        </tr>
+        <tr class="bg-blue-900/40 text-[0.55rem] tracking-widest text-slate-400 font-black uppercase border-b border-white/10">
+            <th class="p-1 border-r border-white/10 text-center">Stand</th>
+            <th class="p-1 border-r border-white/10 text-center text-blue-300 bg-blue-950/20">Actueel</th>
+            <th class="p-1 border-r border-white/10 text-center text-blue-300 bg-blue-950/20">Verw.</th>
+            <th class="p-1 border-r border-white/10 text-center">Verw.</th>
+            <th class="p-1 border-r border-white/10 text-center text-blue-300 bg-blue-950/20">Voorsp.</th>
+            <th class="p-1 border-r border-white/10 text-center text-blue-300 bg-blue-950/20">Schat.</th>
+            <th class="p-1 text-center">Verw.</th>
+        </tr>
+    `;
+
+    const tbody = document.getElementById('elwis-tbody');
+    tbody.innerHTML = '';
+    
+data.rijen.forEach(rij => {
+        const tr = document.createElement("tr");
+        // text-[0.7rem] maakt de letters net iets groter en duidelijker
+        tr.className = "hover:bg-white/5 border-b border-white/5 transition-colors whitespace-nowrap text-[0.7rem]";
+        tr.innerHTML = `
+            <td class="p-2 elwis-sticky-col font-mono font-bold text-blue-300 text-center">${rij.tijd}</td>
+            <td class="p-2 border-r border-white/10 text-center">${formatteerStandDashboard(rij.gistStand, rij.gistTrend)}</td>
+            <td class="p-2 border-r border-white/10 text-center bg-blue-900/5">${formatteerStandDashboard(rij.vandStand, rij.vandTrend)}</td>
+            <td class="p-2 border-r border-white/10 text-center font-bold font-mono text-blue-200 bg-blue-900/5">${rij.vandVerwachting}</td>
+            <td class="p-2 border-r border-white/10 text-center font-bold font-mono text-slate-200">${rij.morgVerwachting}</td>
+                      <td class="p-2 border-r border-white/10 text-center font-bold font-mono text-slate-200">${rij.overmorgVoorsp}</td>
+            <td class="p-2 border-r border-white/10 text-center font-medium font-mono italic text-slate-400 bg-blue-900/5">${rij.overmorgSchat}</td>
+            <td class="p-2 text-center font-bold font-mono text-slate-300">${rij.laatsteDag}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+            elwisLoaded = true;
+        }
+    </script>
+</body>
+</html>
+
+
+
+

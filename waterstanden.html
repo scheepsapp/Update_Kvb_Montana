@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brughoogte Monitor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+        <link rel="icon" type="image/png" href="pic/icon-logo.png"> 
+<style>
+    /* ======================================================= */
+    /* DEFINITIEVE PREMIUM DASHBOARD STIJL                     */
+    /* ======================================================= */
+    :root {
+        --bg-dark: #050810; 
+        --panel-bg: rgba(15, 23, 42, 0.85); 
+        --accent-blue: #3b82f6; 
+        --accent-green: #22c55e; 
+        --accent-orange: #f59e0b; 
+        --accent-red: #ef4444; 
+        --text-main: #f8fafc;
+        --text-dim: #94a3b8;
+        --border-glass: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Light Mode Variabelen */
+    body.light-mode {
+        --bg-dark: #f1f5f9;
+        --panel-bg: rgba(255, 255, 255, 0.9);
+        --accent-blue: #2563eb;
+        --text-main: #0f172a;
+        --text-dim: #64748b;
+        --border-glass: rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-dark);
+        background: radial-gradient(circle at top right, #111827, #050810);
+        color: var(--text-main);
+        margin: 0;
+        padding-top: 90px;
+        transition: all 0.3s ease;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Navigatie Balk */
+    .navbar {
+        background: rgba(5, 8, 16, 0.9);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--accent-blue);
+        height: 70px;
+        position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
+    }
+
+    /* Glazen Panelen */
+    .tool-panel, .fixed-tool-panel {
+        background: var(--panel-bg);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--border-glass);
+        border-radius: 1.25rem;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        padding: 1.5rem;
+    }
+
+    /* --- TITELS IN PANELEN (BRUGHOGTES OVERZICHT) --- */
+    h3.panel-title {
+        font-size: 0.9rem;
+        font-weight: 900;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--accent-blue);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.6rem;
+        border-bottom: 1px solid var(--border-glass);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    h3.panel-title::before {
+        content: '';
+        display: inline-block;
+        width: 4px;
+        height: 20px;
+        background-color: var(--accent-blue);
+        border-radius: 2px;
+    }
+
+    /* --- SCHEEPSHOOGTE INPUT (RECHTSBOVEN) --- */
+    .ship-height-input {
+        width: 100%;
+        background: #0f172a !important;
+        color: #ffffff !important;
+        border: 2px solid var(--accent-blue) !important;
+        border-radius: 0.75rem;
+        padding: 0.75rem;
+        font-size: 1.75rem;
+        font-weight: 900;
+        text-align: center;
+        margin-top: 0.5rem;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+    }
+
+    .panel-title-sm {
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+        margin-bottom: 0.5rem;
+    }
+
+    /* --- WATERSTANDEN RIJEN --- */
+    .waterstand-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-glass);
+        border-radius: 0.75rem;
+        padding: 0.6rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .waterstand-input {
+        width: 90px;
+        background: #0f172a !important;
+        color: var(--accent-blue) !important;
+        border: 1px solid rgba(59, 130, 246, 0.5) !important;
+        border-radius: 0.5rem;
+        padding: 0.35rem;
+        font-weight: 800;
+        text-align: right;
+        outline: none;
+    }
+
+    /* --- BRUG ITEMS --- */
+    .bridge-item {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-glass);
+        margin-bottom: 0.65rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-left: 6px solid transparent;
+        transition: all 0.2s ease;
+    }
+
+    .bridge-item:hover {
+        background: rgba(255, 255, 255, 0.06);
+        transform: translateX(4px);
+    }
+
+    /* Kleurenlogica Marge */
+    .status-ok-bg { border-left-color: var(--accent-green) !important; }
+    .status-ok-bg .rest-dvh-text { color: var(--accent-green) !important; }
+
+    .status-warning-bg { 
+        border-left-color: var(--accent-orange) !important; 
+        background: rgba(245, 158, 11, 0.08) !important;
+    }
+    .status-warning-bg .rest-dvh-text { color: var(--accent-orange) !important; }
+    
+    .status-low-bg { 
+        border-left-color: var(--accent-red) !important; 
+        background: rgba(239, 68, 68, 0.12) !important;
+        animation: pulse-red-glow 2s infinite;
+    }
+    .status-low-bg .rest-dvh-text { color: var(--accent-red) !important; }
+
+    /* Doorvaart (Witte tekst) */
+    .dvh-actueel {
+        color: var(--text-main);
+        font-weight: 800;
+    }
+
+    @keyframes pulse-red-glow {
+        0% { box-shadow: inset 0 0 0 0 rgba(239, 68, 68, 0.2); }
+        50% { box-shadow: inset 0 0 15px 0 rgba(239, 68, 68, 0.3); }
+        100% { box-shadow: inset 0 0 0 0 rgba(239, 68, 68, 0.2); }
+    }
+
+    /* Grote Sectie Titels (DUITSLAND / NEDERLAND) */
+    h2 {
+        font-size: 1.75rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: -0.02em;
+        color: var(--accent-blue);
+        border-bottom: 4px solid var(--accent-blue);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Verberg Pegelnamen onder bruggen */
+    .location-label, .text-white\/50, .text-xs.font-normal.text-white\/50 { 
+        display: none !important; 
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+
+
+/* --- LUXE NAVIGATIE KNOPPEN (RWS & ELWIS) --- */
+    .nav-links-container {
+        display: flex;
+        gap: 15px;
+        margin-right: -30px;
+        align-items: center;
+    }
+
+    .nav-link-btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(59, 130, 246, 0.4);
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    
+    /* Hover effect: oplichten en omhoog komen */
+    .nav-link-btn:hover {
+        background: rgba(59, 130, 246, 0.2);
+        border-color: var(--accent-blue);
+        transform: translateY(-2px);
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        color: var(--accent-blue);
+    }
+
+    /* Specifieke kleur voor RWS (Oranje tintje optioneel) of hou alles blauw voor rust */
+    .btn-rws:hover::before { background: #3b82f6; box-shadow: 0 0 10px #3b82f6; }
+    .btn-elwis:hover::before { background: #3b82f6; box-shadow: 0 0 10px #3b82f6; }
+
+</style>
+
+</head>
+<body class="flex flex-col items-center min-h-screen relative">
+
+<nav class="navbar flex items-center justify-between px-6">
+    <div class="flex items-center gap-4">
+        <img src="pic/logo.png" alt="Logo" class="h-13 w-12 object-contain">
+        <h1 class="text-xl font-black tracking-tighter text-white">
+            BRUG<span class="text-blue-500">MONITOR</span>
+        </h1>
+    </div>
+
+<div class="flex items-center">
+    <div class="nav-links-container hidden md:flex">
+        <a href="https://waterinfo.rws.nl/publiek/waterhoogte" target="_blank" class="nav-link-btn btn-rws">
+            RWS Waterinfo
+        </a>
+        <a href="https://www.elwis.de/DE/dynamisch/Wasserstaende/Pegelliste:area:RHEINGEBIET" target="_blank" class="nav-link-btn btn-elwis">
+            ELWIS
+        </a>
+    </div>
+
+               
+        <button id="theme-toggle" class="ml-4 p-2 rounded-full hover:bg-white/10">
+            </button>
+    </div>
+</nav>
+
+
+    
+<div class="fixed top-[100px] right-8 flex flex-col space-y-6">
+        
+        <div class="w-[280px] fixed-tool-panel" style="padding: 0; overflow: hidden;">
+            
+            <div class="p-6 pb-2">
+                <h3 class="panel-title-sm">Actuele Scheepshoogte</h3>
+                <div class="flex flex-col space-y-2">
+                    <input type="number" id="ship-height-global" value="700" step="1" 
+                           class="ship-height-input p-2 rounded-md border text-base focus:border-blue-500 text-right font-bold">
+                </div>
+            </div>
+            
+            <img src="pic/schip.png" alt="Profiel van het schip" class="w-full h-auto block border-t border-white/10">
+            
+        </div>
+        
+        <div class="w-[280px] fixed-tool-panel">
+            <h3 class="panel-title-sm text-red-500" style="border-color: #dc2626; color: #dc2626;">Marke Alarmen </h3>
+            <ul id="marke-alarm-list" class="space-y-3 text-sm">
+            </ul>
+        </div>
+    </div>
+
+    <div class="flex flex-col max-w-7xl w-full gap-10 p-4 pt-16"> 
+        
+        <h2 class="text-4xl font-extrabold tracking-wider pb-2 border-b-4 border-b-indigo-500" 
+            style="color: var(--accent-blue);">DUITSLAND (RHEIN)</h2>
+        <div class="flex w-full gap-8">
+            
+            <div class="w-1/3 tool-panel waterstand-panel">
+                <h3 class="panel-title" style="border-color: var(--accent-teal); color: var(--accent-teal);">WATERSTANDEN</h3>
+                <div id="waterstand-list-de" class="space-y-2 list-panel">
+                </div>
+            </div>
+
+            <div class="w-2/3 tool-panel bridge-panel">
+                <h3 class="panel-title" style="border-color: var(--accent-teal); color: var(--accent-teal);">BRUGHOOGTES OVERZICHT</h3>
+                <div id="bridge-list-de" class="space-y-3 list-panel">
+                </div>
+            </div>
+        </div>
+        
+        
+        <h2 class="text-4xl font-extrabold tracking-wider mt-8 pb-2 border-b-4 border-b-indigo-500"
+            style="color: var(--accent-blue);">NEDERLANDSE BRUGGEN</h2>
+        <div class="flex w-full gap-8">
+            
+            <div class="w-1/3 tool-panel waterstand-panel">
+                <h3 class="panel-title" style="border-color: var(--accent-teal); color: var(--accent-teal);">WATERSTANDEN</h3>
+                <div id="waterstand-list-nl" class="space-y-2 list-panel">
+                </div>
+            </div>
+
+            <div class="w-2/3 tool-panel bridge-panel">
+                <h3 class="panel-title" style="border-color: var(--accent-teal); color: var(--accent-teal);">BRUGHOOGTES OVERZICHT</h3>
+                <div id="bridge-list-nl" class="space-y-3 list-panel">
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+
+<script>
+
+
+
+
+    
+    // ====================================================================
+    // LOCALSTORAGE FUNCTIES (TOEG. VOOR PERSISTENTIE) 💾
+    // ====================================================================
+
+    const WATERSTANDEN_STORAGE_KEY = 'waterstandenData';
+    const SHIP_HEIGHT_STORAGE_KEY = 'maxShipHeight';
+
+    function saveWaterstandData(waterstandDataDE, waterstandDataNL) {
+        // Combineer DE en NL data in één object voor opslag
+        const allWaterstandData = {
+            de: waterstandDataDE,
+            nl: waterstandDataNL
+        };
+        // localStorage slaat alleen strings op, dus we gebruiken JSON.stringify()
+        localStorage.setItem(WATERSTANDEN_STORAGE_KEY, JSON.stringify(allWaterstandData));
+    }
+
+    function loadWaterstandData(waterstandDataDE, waterstandDataNL) {
+        const savedData = localStorage.getItem(WATERSTANDEN_STORAGE_KEY);
+        if (savedData) {
+            const parsedData = JSON.parse(savedData);
+            
+            // Update de oorspronkelijke arrays. We retourneren de bijgewerkte arrays.
+            if (parsedData.de) waterstandDataDE.splice(0, waterstandDataDE.length, ...parsedData.de);
+            if (parsedData.nl) waterstandDataNL.splice(0, waterstandDataNL.length, ...parsedData.nl);
+        }
+        return { de: waterstandDataDE, nl: waterstandDataNL };
+    }
+
+function loadShipHeight(shipHeightInputGlobal) {
+    const savedHeight = localStorage.getItem(SHIP_HEIGHT_STORAGE_KEY);
+    if (savedHeight !== null) {
+        // Gebruik toFixed(0) om de decimalen weg te halen bij het laden
+        shipHeightInputGlobal.value = parseFloat(savedHeight).toFixed(0);
+        return parseFloat(savedHeight);
+    }
+    return parseFloat(shipHeightInputGlobal.value) || 700; 
+}
+
+    function saveShipHeight(value) {
+        localStorage.setItem(SHIP_HEIGHT_STORAGE_KEY, value);
+    }
+    
+    // ====================================================================
+    // START VAN BRUGHOGTE LOGICA
+    // ====================================================================
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const waterstandListDE = document.getElementById('waterstand-list-de');
+        const bridgeListPanelDE = document.getElementById('bridge-list-de');
+        const waterstandListNL = document.getElementById('waterstand-list-nl');
+        const bridgeListPanelNL = document.getElementById('bridge-list-nl');
+        const shipHeightInputGlobal = document.getElementById('ship-height-global');
+        
+        // ====================================================================
+        // DATA DEFINITIE - KRITISCHE HOGER WATER STANDEN (CM)
+        // ====================================================================
+        let waterstandDataDE = [
+
+            { id: 'max', name: 'Maxau', level: 0, ref: 0.00, currentLevel: 0.00, listId: 'de', markeI_cm: 620, markeII_cm: 750 },
+            { id: 'spe', name: 'Speyer', level: 0, ref: 0.00, currentLevel: 0.00, listId: 'de', markeI_cm: 620, markeII_cm: 730 },
+            { id: 'man', name: 'Mannheim', level: 0, ref: 0.00, currentLevel: 0.00, listId: 'de', markeI_cm: 650, markeII_cm: 760 },
+            { id: 'wor', name: 'Worms', level: 0, ref: 0.00, currentLevel: 0.00, listId: 'de', markeI_cm: 440, markeII_cm: 640 },
+            { id: 'mai', name: 'Mainz', level: 0, ref: 0.00, currentLevel: 0.00, listId: 'de', markeI_cm: 475, markeII_cm: 630 },
+
+            { id: 'kob', name: 'Koblenz', level: 0, ref: 0.00, currentLevel: 0.00, listId: 'de', markeI_cm: 460, markeII_cm: 640 },
+            { id: 'bon', name: 'Bonn', level: 0, ref: 0.00, currentLevel: 0.00, listId: 'de', markeI_cm: 800000, markeII_cm: 9000000 },
+            { id: 'kol', name: 'Koln', level: 0, ref: 0.00, currentLevel: 0.00, listId: 'de', markeI_cm: 620, markeII_cm: 830 },
+ 
+            { id: 'dus', name: 'Dusseldorf', level: 0, ref: 0.00, currentLevel: 0.00, listId: 'de', markeI_cm: 710, markeII_cm: 880 },
+            { id: 'rur', name: 'Ruhrort', level: 0, ref: 0.00, currentLevel: 0.00, listId: 'de', markeI_cm: 930, markeII_cm: 1130 },
+            { id: 'wes', name: 'Wesel', level: 0, ref: 0.00, currentLevel: 0.00, listId: 'de', markeI_cm: 870, markeII_cm: 1060 },
+            { id: 'emm', name: 'Emmerich', level: 0.00, ref: 0.00, currentLevel: 0.00, listId: 'de', markeI_cm: 700, markeII_cm: 870 } 
+        ];
+        
+        let allBridgeDataDE = [
+            { id: 'germersheim', name: 'Germesheim', refDvh: 16.60, refWaterLevel: 0.00, locationId: 'max', listId: 'de' },
+            { id: 'Speyer', name: 'Speyer', refDvh: 16.40, refWaterLevel: 0.00, locationId: 'spe', listId: 'de' },
+            { id: 'Mainheim_2', name: 'Mainheim Necker', refDvh: 13.80 , refWaterLevel: 0.00, locationId: 'man', listId: 'de' },
+            { id: 'Mannheim', name: 'Mannheim', refDvh: 16.70, refWaterLevel: 0.00, locationId: 'man', listId: 'de' },
+            { id: 'worms', name: 'Worms', refDvh: 15.60, refWaterLevel: 0.00, locationId: 'wor', listId: 'de' },
+            { id: 'Mainz', name: 'Mainz', refDvh: 15.40, refWaterLevel: 0.00, locationId: 'mai', listId: 'de' },
+
+           
+            { id: 'koblenz_1', name: 'Koblenz', refDvh: 15.60, refWaterLevel: 0.00, locationId: 'kob', listId: 'de' },
+            { id: 'weissenturm', name: 'Weissenturm', refDvh: 15.60, refWaterLevel: 0.00, locationId: 'kob', listId: 'de' },
+            { id: 'bonn', name: 'Bonn', refDvh: 16.80, refWaterLevel: 0.00, locationId: 'bon', listId: 'de' },
+       	    { id: 'leverkusen', name: 'Leverkusen', refDvh: 17.40, refWaterLevel: 0.00, locationId: 'kol', listId: 'de' },
+            { id: 'neuss', name: 'Neuss-Hamm Br.', refDvh: 17.41, refWaterLevel: 0.00, locationId: 'dus', listId: 'de' },
+            { id: 'knie', name: 'Kniebrucke (Duss.)', refDvh: 17.62, refWaterLevel: 0.00, locationId: 'dus', listId: 'de' },
+            { id: 'krefeld', name: 'Krefeld', refDvh: 20.18, refWaterLevel: 0.00, locationId: 'rur', listId: 'de' },
+            { id: 'vinc', name: 'Vincke kanaal', refDvh: 17.08, refWaterLevel: 0.00, locationId: 'rur', listId: 'de' },
+            { id: 'ruhr', name: 'Ruhr', refDvh: 20.18, refWaterLevel: 0.00, locationId: 'rur', listId: 'de' },
+            { id: 'wesel', name: 'Wesel', refDvh: 19.70, refWaterLevel: 0.00, locationId: 'wes', listId: 'de' },
+            { id: 'rees', name: 'Rees', refDvh: 17.80, refWaterLevel: 0.00, locationId: 'emm', listId: 'de' },
+            { id: 'emme', name: 'Emmerich', refDvh: 17.80, refWaterLevel: 0.00, locationId: 'emm', listId: 'de' } 
+        ];
+
+// --- GEBRUIK DEZE DATA SECTIE ---
+let waterstandDataNL = [
+    { id: 'nij', name: 'Nijmegen', level: 0.00, ref: 0.00, currentLevel: 0.00, listId: 'nl' }, 
+    { id: 'tiel', name: 'Tiel', level: 0, ref: 0.00, currentLevel: 0.00, listId: 'nl' },
+    { id: 'zalt', name: 'Zaltbommel', level: 0, ref: 0.00, currentLevel: 0.00, listId: 'nl' },
+    { id: 'wer', name: 'Werkendam', level: 0.00, ref: 0.00, currentLevel: 0.00, listId: 'nl' }, 
+    { id: 'dor', name: 'Dordrecht', level: 0, ref: 0.00, currentLevel: 0.00, listId: 'nl' },
+    { id: 'rot', name: 'Rotterdam', level: 0.00, ref: 0.00, currentLevel: 0.00, listId: 'nl' },
+    { id: 'spijk_nis', name: 'Spijkenisse', level: 0.00, ref: 0.00, currentLevel: 0.00, listId: 'nl' }, 
+    { id: 'hoek', name: 'Hoek van Holland', level: 0.00, ref: 0.00, currentLevel: 0.00, listId: 'nl' }
+];
+
+let allBridgeDataNL = [
+    { id: 'waal', name: 'Nijmegen', refDvh: 22.80, refWaterLevel: 0.00, locationId: 'nij', listId: 'nl' }, 
+    { id: 'ewijk', name: 'Ewijk', refDvh: 23.20, refWaterLevel: 0.00, locationId: 'nij', listId: 'nl' }, 
+    { id: 'tielbr', name: 'Tiel ', refDvh: 19.60, refWaterLevel: 0.00, locationId: 'tiel', listId: 'nl' },
+    { id: 'zalt', name: 'Zaltbommel', refDvh: 17.40, refWaterLevel: 0.00, locationId: 'zalt', listId: 'nl' }, 
+    { id: 'gorinchem', name: 'Gorinchem ( Midden Pijler +1,20) ', refDvh: 13.33, refWaterLevel: 0.00, locationId: 'wer', listId: 'nl' }, 
+    { id: 'baanho', name: 'Baanhoek', refDvh: 12.90, refWaterLevel: 0.00, locationId: 'dor', listId: 'nl' }, 
+    { id: 'papen', name: 'Papendrecht', refDvh: 13.00, refWaterLevel: 0.00, locationId: 'dor', listId: 'nl' },
+    { id: 'dordre', name: 'Dordrecht', refDvh: 11.35, refWaterLevel: 0.00, locationId: 'dor', listId: 'nl' }, 
+    { id: 'albl', name: 'Alblasserdam  ( Midden  +0,34)', refDvh: 12.60, refWaterLevel: 0.00, locationId: 'dor', listId: 'nl' }, 
+    { id: 'Spijksebrug', name: 'Spijkenissebrug', refDvh: 12.50, refWaterLevel: 0.00, locationId: 'spijk_nis', listId: 'nl' }, 
+    { id: 'botlek', name: 'Botlekbrug', refDvh: 14.00, refWaterLevel: 0.00, locationId: 'spijk_nis', listId: 'nl' }, 
+    { id: 'Kanaal', name: 'hamsenbrug', refDvh: 11.45, refWaterLevel: 0.00, locationId: 'hoek', listId: 'nl' },
+    { id: 'suur', name: 'Suurhoffbrug', refDvh: 11.50, refWaterLevel: 0.00, locationId: 'hoek', listId: 'nl' },
+    { id: 'willems', name: 'Willemsbrug ( Midden  +0,70)', refDvh: 11.50, refWaterLevel: 0.00, locationId: 'rot', listId: 'nl' }, 
+    { id: 'erasmus', name: 'Erasmusbrug ( Midden  +0,80)', refDvh: 12.50, refWaterLevel: 0.00, locationId: 'rot', listId: 'nl' }
+];
+       
+
+        // 1. LAAD PERSISTENTE DATA
+        // Laad scheepshoogte en update maxShipHeight
+        let maxShipHeight = loadShipHeight(shipHeightInputGlobal); 
+        
+       // FORCEER UPDATE: Als Spijkenisse ontbreekt in het geheugen, wis dan de oude data
+if (!localStorage.getItem('waterstandenData') || !localStorage.getItem('waterstandenData').includes('spijk_nis')) {
+    localStorage.removeItem('waterstandenData');
+}
+
+// Hierna komt je bestaande regel:
+loadWaterstandData(waterstandDataDE, waterstandDataNL);
+
+        // ====================================================================
+        // MARKE ALARM LOGICA 
+        // ====================================================================
+
+        function updateMarkeAlarmList() {
+            const alarmListElement = document.getElementById('marke-alarm-list');
+            alarmListElement.innerHTML = '';
+            
+            const germanWaterstandData = waterstandDataDE; 
+            let criticalMarkes = [];
+
+            germanWaterstandData.forEach(waterstand => {
+                const currentCm = (waterstand.currentLevel * 100); 
+                let message = null;
+                let alarmClass = '';
+                let alarmColor = '';
+                let alarmIcon = '';
+
+                if (waterstand.markeII_cm && currentCm >= waterstand.markeII_cm) {
+                    message = `${waterstand.name} Marke II bereikt`;
+                    alarmClass = 'bg-red-900 border-red-700';
+                    alarmColor = 'text-red-400';
+                    alarmIcon = '🚨';
+                } else if (waterstand.markeI_cm && currentCm >= waterstand.markeI_cm) {
+                    message = `${waterstand.name} Marke I bereikt`;
+                    alarmClass = 'bg-amber-900 border-amber-700';
+                    alarmColor = 'text-amber-400';
+                    alarmIcon = '⚠️';
+                }
+                
+                if (message) {
+                    criticalMarkes.push({
+                        message: message,
+                        alarmClass: alarmClass,
+                        alarmColor: alarmColor,
+                        alarmIcon: alarmIcon
+                    });
+                }
+            });
+
+            if (criticalMarkes.length === 0) {
+                alarmListElement.innerHTML = '<li id="no-marke-alert" "> </li>';
+            } else {
+                criticalMarkes.forEach(alarm => {
+                    const li = document.createElement('li');
+                    li.className = `${alarm.alarmClass} p-3 rounded-md border`; 
+                    li.innerHTML = `
+                        <div class="text-base font-extrabold ${alarm.alarmColor} mb-0.5">${alarm.alarmIcon} ALARM</div>
+                        <div class="text-sm text-white">${alarm.message}</div>
+                    `;
+                    alarmListElement.appendChild(li);
+                });
+            }
+        }
+
+
+        // ====================================================================
+        // CORE LOGIC FUNCTIES
+        // ====================================================================
+
+        function updateBridgesForWaterstand(waterstandId, newWaterLevelInMeters, sectionId) {
+            
+            const waterstandData = sectionId === 'de' ? waterstandDataDE : waterstandDataNL;
+            const allBridgeData = sectionId === 'de' ? allBridgeDataDE : allBridgeDataNL;
+
+            const waterstandRefData = waterstandData.find(ws => ws.id === waterstandId);
+            const waterstandRef = waterstandRefData ? waterstandRefData.ref : 0.00; 
+
+            const affectedBridges = allBridgeData.filter(b => b.locationId === waterstandId);
+            
+            affectedBridges.forEach(bridge => {
+                const waterLevelDifference = newWaterLevelInMeters - waterstandRef;
+                const newDvh = bridge.refDvh - waterLevelDifference;
+                
+                const restDvh = newDvh - maxShipHeight; 
+                
+                const dvhElement = document.getElementById(`dvh-actueel-${bridge.id}`);
+                const restDvhElement = document.getElementById(`rest-dvh-${bridge.id}`); 
+                const bridgeElement = document.getElementById(`bridge-item-${bridge.id}`); 
+
+                if (dvhElement && restDvhElement && bridgeElement) {
+                    const formattedNewDvh = newDvh.toFixed(2);
+                    const formattedRestDvh = restDvh.toFixed(2);
+                    
+                    let statusClassBg;
+                    if (restDvh <= 0) {
+                        statusClassBg = 'status-low-bg'; 
+                    } else if (restDvh <= 0.50) {
+                        statusClassBg = 'status-warning-bg'; 
+                    } else {
+                        statusClassBg = 'status-ok-bg'; 
+                    }
+
+                    // Handhaaf de juiste statuskleur in zowel dag- als nachtmodus
+                    bridgeElement.className = bridgeElement.className.split(' ').filter(c => !c.endsWith('-bg') && c !== 'bridge-item').join(' ');
+                    bridgeElement.classList.add('bridge-item', statusClassBg);
+                    
+                    dvhElement.textContent = `${formattedNewDvh} m`;
+                    restDvhElement.textContent = `${formattedRestDvh} m`;
+                }
+            });
+        }
+        
+        function updateAllBridgesStatus() {
+            // Update maxShipHeight variabele van de input
+            maxShipHeight = parseFloat(shipHeightInputGlobal.value/100) || 900;
+            
+            waterstandDataDE.forEach(data => {
+                updateBridgesForWaterstand(data.id, data.currentLevel, 'de');
+            });
+            waterstandDataNL.forEach(data => {
+                updateBridgesForWaterstand(data.id, data.currentLevel, 'nl');
+            });
+        }
+
+
+        function renderWaterstandList(dataArray, targetElement) {
+            targetElement.innerHTML = '';
+            dataArray.forEach((data) => {
+                
+                const sectionId = data.listId; 
+                // Zorg ervoor dat de invoer in cm is, afgerond op 0 decimalen
+                const currentCm = (data.currentLevel * 100).toFixed(0); 
+                
+                const waterstandElement = document.createElement('div');
+                waterstandElement.className = `waterstand-item flex justify-between items-center`;
+                waterstandElement.dataset.id = data.id; 
+                
+                waterstandElement.innerHTML = `
+                    <span class="font-medium">${data.name}</span> 
+                    <input type="number" data-id="${data.id}" value="${currentCm}" step="1" 
+                           class="waterstand-input p-1 rounded-lg border text-sm focus:border-blue-500 text-right font-bold">
+                `;
+                
+                const inputElement = waterstandElement.querySelector('input');
+
+                inputElement.addEventListener('input', (e) => {
+                    const newValueCm = parseFloat(e.target.value);
+                    if (!isNaN(newValueCm)) {
+                        const newValueMeters = newValueCm / 100;
+                        data.currentLevel = newValueMeters;
+                        
+                        // Opslaan in localStorage
+                        saveWaterstandData(waterstandDataDE, waterstandDataNL);
+                        
+                        updateBridgesForWaterstand(data.id, newValueMeters, sectionId); 
+                        
+                        if (sectionId === 'de') {
+                            updateMarkeAlarmList();
+                        }
+                    }
+                });
+
+                waterstandElement.addEventListener('click', (e) => {
+                    e.stopPropagation(); 
+                    document.querySelectorAll('.waterstand-item').forEach(el => el.classList.remove('active'));
+                    waterstandElement.classList.add('active');
+                });
+                
+                targetElement.appendChild(waterstandElement);
+            });
+        }
+        
+        function renderBridgeList(dataArray, waterstandArray, targetElement) {
+            targetElement.innerHTML = '';
+            
+            dataArray.forEach(bridge => {
+                const waterstandLocation = waterstandArray.find(ws => ws.id === bridge.locationId);
+                const locationName = waterstandLocation ? `(${waterstandLocation.name})` : ''; 
+
+                const bridgeElement = document.createElement('div');
+                bridgeElement.className = `bridge-item status-ok-bg`; 
+                bridgeElement.id = `bridge-item-${bridge.id}`; 
+                
+                bridgeElement.innerHTML = `
+                    <div class="flex flex-col">
+                        <span class="text-lg font-bold">${bridge.name}</span>
+                    </div>
+                    <div class="flex items-center space-x-6">
+                        <div class="text-center">
+                            <span class="text-xs font-light text-white/50 block">Doorvaart</span>
+                            <span class="dvh-actueel font-extrabold text-xl" id="dvh-actueel-${bridge.id}">-- m</span>
+                        </div>
+                        
+                        <div class="text-center border-l border-gray-700 pl-6">
+                            <span class="text-xs font-light text-white/50 block">Marge</span>
+                            <span class="rest-dvh-text font-extrabold text-xl" id="rest-dvh-${bridge.id}">-- m</span>
+                        </div>
+                    </div>
+                `;
+                bridgeElement.dataset.id = bridge.id;
+
+                targetElement.appendChild(bridgeElement);
+            });
+        }
+        
+        // 2. RENDERING VAN DE LIJSTEN
+        // Eerst renderen we de inputs (op basis van de (geladen) data), daarna updaten we de bruggen.
+        renderWaterstandList(waterstandDataDE, waterstandListDE);
+        renderBridgeList(allBridgeDataDE, waterstandDataDE, bridgeListPanelDE);
+        
+        renderWaterstandList(waterstandDataNL, waterstandListNL);
+        renderBridgeList(allBridgeDataNL, waterstandDataNL, bridgeListPanelNL);
+        
+        // 3. EVENTS (inclusief Opslaan)
+        shipHeightInputGlobal.addEventListener('input', () => {
+            saveShipHeight(shipHeightInputGlobal.value); // Bewaar nieuwe scheepshoogte
+            updateAllBridgesStatus(); 
+        });
+        
+        // Initialiseer de brugstatus op basis van de geladen waterstanden
+        updateAllBridgesStatus(); 
+        updateMarkeAlarmList();
+    });
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
