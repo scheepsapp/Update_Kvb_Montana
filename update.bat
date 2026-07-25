@@ -2,7 +2,7 @@
 :: Geen setlocal om fouten te voorkomen
 
 echo ============================================
-echo      Update_Schip_New_Jersey
+echo       Update_Schip_Montana
 echo ============================================
 
 :: 1. Controleer op Admin rechten
@@ -14,10 +14,10 @@ if %errorLevel% neq 0 (
 )
 
 :: 2. Map instellen
-set appDir=C:\Program Files (x86)\MS New Jersey
-set baseUrl=https://raw.githubusercontent.com/scheepsapp/Update_Ms_New_Jersey/refs/heads/main/
+set appDir=C:\Program Files (x86)\KVB Montana
+set baseUrl=https://raw.githubusercontent.com/scheepsapp/Update_Kvb_Montana/refs/heads/main
 
-:: 3. Elk bestand handmatig (geen ingewikkelde codes)
+:: 3. Elk bestand handmatig
 
 echo Bezig met reizen.html...
 powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri '%baseUrl%/reizen.html' -OutFile '%TEMP%\reizen.html'"
@@ -43,9 +43,15 @@ if exist "%appDir%\waterstanden.html" attrib -h -s -r "%appDir%\waterstanden.htm
 move /y "%TEMP%\waterstanden.html" "%appDir%\waterstanden.html" >nul
 attrib +h +s +r "%appDir%\waterstanden.html"
 
+:: Nieuw bestand: reefer.html
+echo Bezig met reefer.html...
+powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri '%baseUrl%/reefer.html' -OutFile '%TEMP%\reefer.html'"
+if exist "%appDir%\reefer.html" attrib -h -s -r "%appDir%\reefer.html"
+move /y "%TEMP%\reefer.html" "%appDir%\reefer.html" >nul
+attrib +h +s +r "%appDir%\reefer.html"
 
 echo.
 echo ============================================
-echo      KLAAR! Alle bestanden bijgewerkt.
+echo       KLAAR! Alle bestanden bijgewerkt.
 echo ============================================
 pause

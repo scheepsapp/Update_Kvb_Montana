@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reefer Monitoring & Controle - Yellowstone Shipping AG</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
+        <link rel="icon" type="image/png" href="pic/logo.png">   
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -183,7 +183,6 @@
             color: #94a3b8 !important;
         }
 
-        /* Drag & Drop zone actieve staat */
         #drop-zone.dragover {
             background-color: rgba(59, 130, 246, 0.15) !important;
             border-color: var(--glow-blue) !important;
@@ -204,7 +203,6 @@
             text-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
         }
 
-        /* Print & PDF Opmaak */
         @media print {
             @page {
                 size: A4 landscape;
@@ -311,9 +309,8 @@
 
     <header class="navbar">
         <div class="text-xs font-bold tracking-wider uppercase text-slate-300 flex items-center gap-3">
-            <img src="yellow.png" alt="Yellowstone Shipping AG Logo" class="h-8 w-auto object-contain">
-            <span class="w-2.5 h-2.5 rounded-full bg-blue-400 block shadow-[0_0_10px_#60a5fa]"></span>
-            Reefer Monitoring (Cloud)
+            <img src="pic/logo.png" alt="Yellowstone Shipping AG Logo" class="h-20 w-auto object-contain">
+
         </div>
         
         <h1>Reefer Monitoring</h1>
@@ -348,7 +345,7 @@
         <div class="w-full hidden print:block mb-4">
             <div class="flex justify-between items-center border-b-2 border-slate-900 pb-2 mb-2">
                 <div class="flex items-center gap-3">
-                    <img src="yellow.png" alt="Yellowstone Shipping AG Logo" class="h-10 w-auto object-contain">
+                    <img src="pic/logo2.png" alt="Yellowstone Shipping AG Logo" class="h-10 w-auto object-contain">
                     <div>
                         <h1 class="text-xl font-black tracking-tight text-slate-900 uppercase">REEFER MONITORING RAPPORT</h1>
                         <p class="text-[9px] font-bold text-slate-500 tracking-wider uppercase">Yellowstone Shipping AG</p>
@@ -363,7 +360,7 @@
             <div class="grid grid-cols-3 gap-2 bg-slate-100 p-2.5 rounded border border-slate-300 text-xs">
                 <div>
                     <span class="font-bold text-slate-500 uppercase text-[9px] tracking-wider block">SCHIP:</span>
-                    <span id="printVessel" class="font-bold text-slate-900 text-sm">New Jersey</span>
+                    <span id="printVessel" class="font-bold text-slate-900 text-sm">Montana</span>
                 </div>
                 <div class="text-center border-x border-slate-300 px-2">
                     <span class="font-bold text-slate-500 uppercase text-[9px] tracking-wider block">START DATUM:</span>
@@ -385,7 +382,7 @@
             <div id="voyageHeaderBlock" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-slate-950/40 p-4 border border-slate-800/80 rounded-2xl print:hidden backdrop-blur-sm">
                 <div>
                     <span class="block text-[10px] font-medium text-slate-400 uppercase tracking-wider mb-0.5">Schip</span>
-                    <span id="displayVessel" class="text-sm font-semibold text-slate-200">New Jersey</span>
+                    <span id="displayVessel" class="text-sm font-semibold text-slate-200">Montana</span>
                 </div>
                 <div>
                     <span class="block text-[10px] font-medium text-slate-400 uppercase tracking-wider mb-0.5">Reiscode</span>
@@ -464,7 +461,6 @@
             <div class="mb-6">
                 <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">BAPLIE EDI Bestand (.edi):</label>
                 
-                <!-- Sleep-zone (Drag & Drop) -->
                 <label id="drop-zone" for="ediFile" class="w-full block cursor-pointer p-6 text-center border border-dashed border-slate-700 rounded-2xl bg-slate-950/50 hover:bg-slate-950 transition">
                     <span class="text-2xl mb-1 block">📂</span>
                     <span class="text-xs text-slate-300 font-bold block">Sleep je .edi bestand hierheen</span>
@@ -520,13 +516,13 @@
         import { getFirestore, collection, setDoc, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDkGzOgfmW8MdJT3qIyThACD7yVJhYzaAI",
-            authDomain: "reefers-new-jersey.firebaseapp.com",
-            projectId: "reefers-new-jersey",
-            storageBucket: "reefers-new-jersey.firebasestorage.app",
-            messagingSenderId: "707183343637",
-            appId: "1:707183343637:web:7c64606a774615a6a4b61c",
-            measurementId: "G-VMV3GNEZ6B"
+            apiKey: "AIzaSyAVtP-bhTGAXkXEmRfHRjMPkzNlj72h25A",
+            authDomain: "reefers-montan.firebaseapp.com",
+            projectId: "reefers-montan",
+            storageBucket: "reefers-montan.firebasestorage.app",
+            messagingSenderId: "526411609346",
+            appId: "1:526411609346:web:82460110eba9f2de83be1b",
+            measurementId: "G-8FS1NR20M2"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -548,18 +544,18 @@
 
                 if (actieveReisData && actieveReisId) {
                     window.extractedVoyage = actieveReisData.voyageCode || actieveReisId;
-                    window.extractedVessel = "New Jersey";
+                    window.extractedVessel = "Montana";
                     window.reefersFound = actieveReisData.reefers || [];
                     
                     if(document.getElementById('checkDate')) {
                         document.getElementById('checkDate').value = actieveReisData.startDate || '';
                     }
 
-                    document.getElementById('displayVessel').textContent = "New Jersey";
+                    document.getElementById('displayVessel').textContent = "Montana";
                     document.getElementById('displayVoyageCode').textContent = window.extractedVoyage;
                     document.getElementById('displayDate').textContent = actieveReisData.startDate || '';
                     
-                    document.getElementById('printVessel').textContent = "New Jersey";
+                    document.getElementById('printVessel').textContent = "Montana";
                     document.getElementById('printVoyageCode').textContent = window.extractedVoyage;
                     document.getElementById('printDate').textContent = actieveReisData.startDate || '';
                     document.getElementById('printCount').textContent = window.reefersFound.length;
@@ -596,7 +592,7 @@
                     const data = docSnap.data();
                     const opt = document.createElement('option');
                     opt.value = docSnap.id;
-                    opt.textContent = `${data.voyageCode} - New Jersey (${data.status || 'Actief'})`;
+                    opt.textContent = `${data.voyageCode} - Montana (${data.status || 'Actief'})`;
                     select.appendChild(opt);
                 });
 
@@ -623,18 +619,18 @@
                     const data = docSnap.data();
                     
                     window.extractedVoyage = data.voyageCode;
-                    window.extractedVessel = "New Jersey";
+                    window.extractedVessel = "Montana";
                     window.reefersFound = data.reefers || [];
                     
                     if(document.getElementById('checkDate')) {
                         document.getElementById('checkDate').value = data.startDate || '';
                     }
 
-                    document.getElementById('displayVessel').textContent = "New Jersey";
+                    document.getElementById('displayVessel').textContent = "Montana";
                     document.getElementById('displayVoyageCode').textContent = window.extractedVoyage;
                     document.getElementById('displayDate').textContent = data.startDate || '';
                     
-                    document.getElementById('printVessel').textContent = "New Jersey";
+                    document.getElementById('printVessel').textContent = "Montana";
                     document.getElementById('printVoyageCode').textContent = window.extractedVoyage;
                     document.getElementById('printDate').textContent = data.startDate || '';
                     document.getElementById('printCount').textContent = window.reefersFound.length;
@@ -668,7 +664,7 @@
                 }
 
                 window.extractedVoyage = "";
-                window.extractedVessel = "New Jersey";
+                window.extractedVessel = "Montana";
                 window.reefersFound = [];
 
                 if(document.getElementById('checkDate')) {
@@ -692,7 +688,7 @@
             autoSaveTimer = setTimeout(async () => {
                 try {
                     const voyageData = {
-                        vessel: "New Jersey",
+                        vessel: "Montana",
                         voyageCode: window.extractedVoyage,
                         startDate: document.getElementById('checkDate') ? document.getElementById('checkDate').value : "",
                         reefers: window.reefersFound || [],
@@ -724,7 +720,7 @@
     <script>
         document.getElementById('checkDate').valueAsDate = new Date();
         window.reefersFound = [];
-        window.extractedVessel = "New Jersey";
+        window.extractedVessel = "Montana";
         window.extractedVoyage = "";
         let selectedRowIndex = null;
 
@@ -805,7 +801,6 @@
             if (e.target.files.length > 0) document.getElementById('file-name').textContent = e.target.files[0].name;
         });
 
-        // --- DRAG & DROP LOGICA ---
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('ediFile');
 
@@ -847,11 +842,11 @@
                 const reis = window.extractedVoyage || "Onbekend";
                 const datum = document.getElementById('checkDate').value;
 
-                document.getElementById('displayVessel').textContent = "New Jersey";
+                document.getElementById('displayVessel').textContent = "Montana";
                 document.getElementById('displayVoyageCode').textContent = reis;
                 document.getElementById('displayDate').textContent = datum;
                 
-                document.getElementById('printVessel').textContent = "New Jersey";
+                document.getElementById('printVessel').textContent = "Montana";
                 document.getElementById('printVoyageCode').textContent = reis;
                 document.getElementById('printDate').textContent = datum;
                 document.getElementById('printCount').textContent = window.reefersFound.length;
@@ -870,7 +865,7 @@
         function parseBaplie(content) {
             const segments = content.split("'");
             window.reefersFound = [];
-            window.extractedVessel = "New Jersey";
+            window.extractedVessel = "Montana";
             let tempStoredTemp = "N/A", tempStoredTerminal = "N/A", tempIsReefer = false;
 
             for (let segment of segments) {

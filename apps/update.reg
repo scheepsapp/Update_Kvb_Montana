@@ -5,4 +5,4 @@ Windows Registry Editor Version 5.00
 "URL Protocol"=""
 
 [HKEY_CLASSES_ROOT\update\shell\open\command]
-@="powershell.exe -Command \"Start-Process cmd.exe -ArgumentList '/c \\\"C:\\Program Files (x86)\\MS New Mexico\\update.bat\\\"' -Verb RunAs\""
+@="powershell.exe -Command \"Start-Process cmd.exe -ArgumentList '/c \\\"C:\\Program Files (x86)\\Kvb Montana\\update.bat\\\"' -Verb RunAs\""
