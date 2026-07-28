@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stabiliteits programma </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="pic/logo.png">   
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #1e40af;
+            --glow-blue: #3b82f6;
+            --dark-bg: #020617;
+            --glass: rgba(15, 23, 42, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+.text-green {
+    color: #4ade80 !important; /* Groen */
+    font-weight: bold;
+}
+.text-red {
+    color: #f87171 !important; /* Rood */
+    font-weight: bold;
+}
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: white;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            padding-top: 110px;
+        }
+
+        .bg-fixed {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('pic/Afbeelding van WhatsApp op 2025-11-06 om 12.27.07_d3198d5b.jpg');
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            filter: brightness(0.15) contrast(0.95) saturate(0.8);
+        }
+
+        .navbar {
+            height: 90px;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar h1 {
+            font-weight: 900;
+            font-size: 1.2rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #fff, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: absolute; left: 50%; transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            white-space: nowrap;
+        }
+
+        .main-card {
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 2.5rem;
+            padding: 2.5rem;
+            box-shadow: 0 0 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(59, 130, 246, 0.05);
+        }
+
+        .drop-zone {
+            border: 2px dashed rgba(59, 130, 246, 0.4);
+            border-radius: 1.5rem;
+            padding: 30px 20px;
+            text-align: center;
+            background: rgba(2, 6, 23, 0.4);
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            background: rgba(30, 64, 175, 0.2);
+            border-color: var(--glow-blue);
+            transform: scale(1.01);
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            margin-bottom: 20px;
+            padding: 14px;
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.75rem;
+            background-color: rgba(2, 6, 23, 0.6);
+            color: #f8fafc;
+            resize: vertical;
+            box-sizing: border-box;
+            transition: all 0.15s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--glow-blue);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+            background: rgba(30, 64, 175, 0.2);
+        }
+
+        button.btn-action {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border: 1px solid #3b82f6;
+            padding: 12px 24px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 15px rgba(59,130,246,0.4);
+        }
+
+        button.btn-action:hover {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            box-shadow: 0 0 20px rgba(59,130,246,0.6);
+        }
+
+        .summary {
+            margin-top: 30px;
+            padding: 24px;
+            background: rgba(2, 6, 23, 0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .summary h3 {
+            font-size: 1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: #93c5fd;
+        }
+
+        .summary p {
+            margin: 8px 0;
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 6px;
+        }
+
+        .summary strong {
+            color: #ffffff;
+        }
+
+        h3:not(.summary h3) {
+            font-size: 1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 35px;
+            margin-bottom: 16px;
+            color: #cbd5e1;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--glass-border);
+            border-radius: 1.5rem;
+            background: rgba(2, 6, 23, 0.4);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            text-align: center;
+            border: 1px solid var(--glass-border);
+            color: #cbd5e1;
+        }
+
+        th {
+            background-color: rgba(2, 6, 23, 0.9);
+            color: #ffffff;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.7rem;
+        }
+
+        tbody tr:nth-child(even) td {
+            background-color: rgba(255, 255, 255, 0.01);
+        }
+
+        tbody tr:hover td {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        .ship-row {
+            background-color: rgba(254, 240, 138, 0.15) !important;
+            color: #fde047 !important;
+            font-weight: bold;
+        }
+
+        .stock-row {
+            background-color: rgba(6, 182, 212, 0.15) !important;
+            color: #67e8f9 !important;
+            font-weight: bold;
+        }
+
+        .total-row {
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            color: #6ee7b7 !important;
+            font-weight: bold;
+        }
+        .schip-container {
+    max-width: 100%;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.schip-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* De hoofdcontainer die de panelen naast elkaar zet */
+.dashboard-container {
+    display: flex;
+    flex-wrap: wrap; /* Zorgt dat het op kleine schermen (telefoon) onder elkaar schuift */
+    gap: 20px;       /* Ruimte tussen de panelen */
+    margin-top: 20px;
+}
+
+/* De stijl voor de losse panelen (witte kaart met schaduw en rand) */
+.paneel {
+    flex: 1;                 /* Zorgt dat ze de beschikbare ruimte mooi verdelen */
+    min-width: 300px;        /* Minimum breedte zodat het niet te smal wordt */
+    background: none;
+    border: 1px solid none ;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Specifieke styling voor het duwbak paneel */
+.duwbak-paneel h3 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    color: #333;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* Zorg dat de afbeelding netjes binnen het paneel past */
+.image-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f8f9fa; /* Licht achtergrondkleurtje achter de boot */
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.image-wrapper img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+    </style>
+</head>
+<body>
+
+    <div class="bg-fixed"></div>
+
+    <header class="navbar">
+        <div class="text-xs font-bold tracking-wider uppercase text-slate-300 flex items-center gap-3">
+            <img src="pic/logo.png" alt="Yellowstone Shipping AG Logo" class="h-20 w-auto object-contain">
+        </div>
+        
+        <h1>Stabiliteits programma</h1>
+
+        <div class="flex items-center gap-2">
+            <input type="file" id="fileInput" style="display: none;" onchange="handleFileSelect(event)">
+            <button class="btn-action" onclick="document.getElementById('fileInput').click()" style="padding: 8px 16px; font-size: 0.7rem;">
+                Baplie Lever
+            </button>
+        </div>
+    </header>
+
+    <!-- Hoofdcontainer die de twee panelen netjes naast elkaar zet -->
+    <div class="dashboard-container" style="display: flex; flex-wrap: wrap; gap: 20px; max-width: 1400px; margin: 20px auto; padding: 0 20px;">
+        
+        <!-- Linkerkant: Schip Uploaden & Resultaten -->
+        <div class="paneel" style="flex: 2; min-width: 350px;">
+            <div class="main-card w-full">
+                <textarea id="baplieInput" style="display:none;"></textarea>
+
+                <div class="summary" id="summaryOutput">
+                    <h3>Resultaten</h3>
+                    <p>Scheepsnaam: <strong>Onbekend</strong></p>
+                    <p id="voorraadRegel" style="display:none;">Voorraad: <strong>1 ton</strong></p>
+                    <p>Tonnage: <strong>0 ton</strong></p>
+                    <p>Totale Waterverplaatsing: <strong>0.00 ton</strong></p>
+                    <p> Diepgang: <strong>Onbekend</strong></p>
+                    <p>Max KG-waarde:<strong> <span id="gmResultaat">Onbekend</span></strong></p>
+                    <p>huidige KG :<strong> <span id="kgResultaat">0.00</span> m</strong></p>
+                </div>
+
+                <h3>Verdeling per Laag & Momenten</h3>
+                <table id="resultTable">
+                    <thead>
+                        <tr>
+                            <th>Laag</th>
+                            <th>Aantal Containers</th>
+                            <th>Tonnage</th>
+                            <th>Factor</th>
+                            <th>Moment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5">Nog geen data ingeladen.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Rechterkant: Visuele Weergave Duwbak -->
+        <div class="paneel duwbak-paneel" style="flex: 1; min-width: 300px;">
+            <h3>Visuele Weergave Duwbak</h3>
+            <div class="image-wrapper" style="text-align: center; margin-top: 15px;">
+                <img id="duwbakAfbeelding" src="pic/\Duwbak 1 hoog.png" alt="Duwbak overzicht" style="max-width: 100%; height: auto;">
+            </div>
+            <p id="laagIndicator" style="text-align: center; margin-top: 10px; font-weight: bold; color: #555;"></p>
+        </div>
+
+    </div>
+
+</body>
+<script>
+    // --- TABELLEN VOOR SEA 4 ---
+const meetbriefTabelSea4 = [
+    { waterverplaatsing: 359, diepgang: 100 }, { waterverplaatsing: 398, diepgang: 105 }, { waterverplaatsing: 436, diepgang: 110 },
+    { waterverplaatsing: 474, diepgang: 115 }, { waterverplaatsing: 512, diepgang: 120 }, { waterverplaatsing: 550, diepgang: 125 },
+    { waterverplaatsing: 589, diepgang: 130 }, { waterverplaatsing: 627, diepgang: 135 }, { waterverplaatsing: 665, diepgang: 140 },
+    { waterverplaatsing: 703, diepgang: 145 }, { waterverplaatsing: 742, diepgang: 150 }, { waterverplaatsing: 780, diepgang: 155 },
+    { waterverplaatsing: 818, diepgang: 160 }, { waterverplaatsing: 857, diepgang: 165 }, { waterverplaatsing: 895, diepgang: 170 },
+    { waterverplaatsing: 933, diepgang: 175 }, { waterverplaatsing: 972, diepgang: 180 }, { waterverplaatsing: 1010, diepgang: 185 },
+    { waterverplaatsing: 1048, diepgang: 190 }, { waterverplaatsing: 1087, diepgang: 195 }, { waterverplaatsing: 1125, diepgang: 200 },
+    { waterverplaatsing: 1163, diepgang: 205 }, { waterverplaatsing: 1202, diepgang: 210 }, { waterverplaatsing: 1240, diepgang: 215 },
+    { waterverplaatsing: 1279, diepgang: 220 }, { waterverplaatsing: 1317, diepgang: 225 }, { waterverplaatsing: 1356, diepgang: 230 },
+    { waterverplaatsing: 1394, diepgang: 235 }, { waterverplaatsing: 1432, diepgang: 240 }, { waterverplaatsing: 1471, diepgang: 245 },
+    { waterverplaatsing: 1509, diepgang: 250 }, { waterverplaatsing: 1548, diepgang: 255 }, { waterverplaatsing: 1586, diepgang: 260 },
+    { waterverplaatsing: 1625, diepgang: 265 }, { waterverplaatsing: 1663, diepgang: 270 }, { waterverplaatsing: 1702, diepgang: 275 },
+    { waterverplaatsing: 1741, diepgang: 280 }, { waterverplaatsing: 1779, diepgang: 285 }, { waterverplaatsing: 1818, diepgang: 290 },
+    { waterverplaatsing: 1856, diepgang: 295 }, { waterverplaatsing: 1895, diepgang: 300 }, { waterverplaatsing: 1933, diepgang: 305 },
+    { waterverplaatsing: 1972, diepgang: 310 }, { waterverplaatsing: 2011, diepgang: 315 }, { waterverplaatsing: 2049, diepgang: 320 },
+    { waterverplaatsing: 2088, diepgang: 325 }, { waterverplaatsing: 2127, diepgang: 330 }, { waterverplaatsing: 2165, diepgang: 335 },
+    { waterverplaatsing: 2204, diepgang: 340 }, { waterverplaatsing: 2243, diepgang: 345 }, { waterverplaatsing: 2281, diepgang: 350 },
+    { waterverplaatsing: 2320, diepgang: 355 }, { waterverplaatsing: 2359, diepgang: 360 }, { waterverplaatsing: 2397, diepgang: 365 },
+    { waterverplaatsing: 2436, diepgang: 370 }
+];
+
+    const gmTabelSea4 = [
+        { diepgang: 100, l3: 7.58, l4: 6.99, l5: 6.23 }, { diepgang: 105, l3: 7.29, l4: 6.73, l5: 6.01 },
+        { diepgang: 110, l3: 7.03, l4: 6.49, l5: 5.81 }, { diepgang: 115, l3: 6.79, l4: 6.28, l5: 5.62 },
+        { diepgang: 120, l3: 6.57, l4: 6.09, l5: 5.46 }, { diepgang: 125, l3: 6.37, l4: 5.91, l5: 5.31 },
+        { diepgang: 130, l3: 6.19, l4: 5.75, l5: 5.17 }, { diepgang: 135, l3: 6.03, l4: 5.60, l5: 5.05 },
+        { diepgang: 140, l3: 5.87, l4: 5.46, l5: 4.93 }, { diepgang: 145, l3: 5.73, l4: 5.34, l5: 4.83 },
+        { diepgang: 150, l3: 5.61, l4: 5.23, l5: 4.73 }, { diepgang: 155, l3: 5.49, l4: 5.12, l5: 4.65 },
+        { diepgang: 160, l3: 5.38, l4: 5.02, l5: 4.56 }, { diepgang: 165, l3: 5.27, l4: 4.93, l5: 4.49 },
+        { diepgang: 170, l3: 5.18, l4: 4.85, l5: 4.42 }, { diepgang: 175, l3: 5.09, l4: 4.77, l5: 4.36 },
+        { diepgang: 180, l3: 5.01, l4: 4.70, l5: 4.30 }, { diepgang: 185, l3: 4.93, l4: 4.63, l5: 4.24 },
+        { diepgang: 190, l3: 4.86, l4: 4.57, l5: 4.19 }, { diepgang: 195, l3: 4.80, l4: 4.51, l5: 4.15 },
+        { diepgang: 200, l3: 4.74, l4: 4.46, l5: 4.10 }, { diepgang: 205, l3: 4.68, l4: 4.41, l5: 4.06 },
+        { diepgang: 210, l3: 4.63, l4: 4.37, l5: 4.03 }, { diepgang: 215, l3: 4.58, l4: 4.32, l5: 3.99 },
+        { diepgang: 220, l3: 4.53, l4: 4.28, l5: 3.96 }, { diepgang: 225, l3: 4.49, l4: 4.25, l5: 3.93 },
+        { diepgang: 230, l3: 4.45, l4: 4.21, l5: 3.91 }, { diepgang: 235, l3: 4.41, l4: 4.18, l5: 3.88 },
+        { diepgang: 240, l3: 4.38, l4: 4.15, l5: 3.86 }, { diepgang: 245, l3: 4.34, l4: 4.12, l5: 3.84 },
+        { diepgang: 250, l3: 4.31, l4: 4.10, l5: 3.82 }, { diepgang: 255, l3: 4.29, l4: 4.08, l5: 3.80 },
+        { diepgang: 260, l3: 4.26, l4: 4.06, l5: 3.79 }, { diepgang: 265, l3: 4.24, l4: 4.04, l5: 3.77 },
+        { diepgang: 270, l3: 4.21, l4: 4.02, l5: 3.76 }, { diepgang: 275, l3: 4.19, l4: 4.00, l5: 3.75 },
+        { diepgang: 280, l3: 4.18, l4: 3.99, l5: 3.74 }, { diepgang: 285, l3: 4.16, l4: 3.97, l5: 3.73 },
+        { diepgang: 290, l3: 4.14, l4: 3.96, l5: 3.73 }, { diepgang: 295, l3: 4.13, l4: 3.95, l5: 3.72 },
+        { diepgang: 300, l3: 4.12, l4: 3.94, l5: 3.72 }, { diepgang: 305, l3: 4.10, l4: 3.93, l5: 3.71 },
+        { diepgang: 310, l3: 4.09, l4: 3.93, l5: 3.71 }, { diepgang: 315, l3: 4.08, l4: 3.92, l5: 3.71 },
+        { diepgang: 320, l3: 4.08, l4: 3.92, l5: 3.70 }, { diepgang: 325, l3: 3.98, l4: 3.81, l5: 3.58 },
+        { diepgang: 330, l3: 3.86, l4: 3.68, l5: 3.43 }, { diepgang: 335, l3: 3.73, l4: 3.52, l5: 3.26 },
+        { diepgang: 340, l3: 3.56, l4: 3.34, l5: 3.04 }, { diepgang: 345, l3: 3.35, l4: 3.10, l5: 2.77 },
+        { diepgang: 350, l3: 3.08, l4: 2.79, l5: 2.41 }, { diepgang: 355, l3: 2.70, l4: 2.36, l5: 1.90 },
+        { diepgang: 360, l3: 2.14, l4: 1.71, l5: 1.15 }, { diepgang: 365, l3: 1.18, l4: 0.62, l5: -0.14 },
+        { diepgang: 370, l3: -0.80, l4: -1.67, l5: -2.82 }
+    ];
+
+    // --- TABELLEN VOOR ROBIJN ---
+    const meetbriefTabelRobijn = [
+        { waterverplaatsing: 440, diepgang: 63 }, { waterverplaatsing: 460, diepgang: 65 }, { waterverplaatsing: 480, diepgang: 68 },
+        { waterverplaatsing: 500, diepgang: 70 }, { waterverplaatsing: 520, diepgang: 73 }, { waterverplaatsing: 540, diepgang: 75 },
+        { waterverplaatsing: 560, diepgang: 78 }, { waterverplaatsing: 580, diepgang: 80 }, { waterverplaatsing: 600, diepgang: 83 },
+        { waterverplaatsing: 620, diepgang: 85 }, { waterverplaatsing: 640, diepgang: 88 }, { waterverplaatsing: 660, diepgang: 90 },
+        { waterverplaatsing: 680, diepgang: 93 }, { waterverplaatsing: 700, diepgang: 95 }, { waterverplaatsing: 720, diepgang: 98 },
+        { waterverplaatsing: 740, diepgang: 100 }, { waterverplaatsing: 760, diepgang: 103 }, { waterverplaatsing: 780, diepgang: 105 },
+        { waterverplaatsing: 800, diepgang: 108 }, { waterverplaatsing: 820, diepgang: 110 }, { waterverplaatsing: 840, diepgang: 113 },
+        { waterverplaatsing: 860, diepgang: 115 }, { waterverplaatsing: 880, diepgang: 118 }, { waterverplaatsing: 900, diepgang: 120 },
+        { waterverplaatsing: 920, diepgang: 123 }, { waterverplaatsing: 940, diepgang: 125 }, { waterverplaatsing: 960, diepgang: 127 },
+        { waterverplaatsing: 980, diepgang: 130 }, { waterverplaatsing: 1000, diepgang: 132 }, { waterverplaatsing: 1020, diepgang: 135 },
+        { waterverplaatsing: 1040, diepgang: 137 }, { waterverplaatsing: 1060, diepgang: 140 }, { waterverplaatsing: 1080, diepgang: 142 },
+        { waterverplaatsing: 1100, diepgang: 145 }, { waterverplaatsing: 1120, diepgang: 147 }, { waterverplaatsing: 1140, diepgang: 150 },
+        { waterverplaatsing: 1160, diepgang: 152 }, { waterverplaatsing: 1180, diepgang: 155 }, { waterverplaatsing: 1200, diepgang: 157 },
+        { waterverplaatsing: 1220, diepgang: 160 }, { waterverplaatsing: 1240, diepgang: 162 }, { waterverplaatsing: 1260, diepgang: 165 },
+        { waterverplaatsing: 1280, diepgang: 167 }, { waterverplaatsing: 1300, diepgang: 170 }, { waterverplaatsing: 1320, diepgang: 172 },
+        { waterverplaatsing: 1340, diepgang: 174 }, { waterverplaatsing: 1360, diepgang: 177 }, { waterverplaatsing: 1380, diepgang: 179 },
+        { waterverplaatsing: 1400, diepgang: 182 }, { waterverplaatsing: 1420, diepgang: 184 }, { waterverplaatsing: 1440, diepgang: 186 },
+        { waterverplaatsing: 1460, diepgang: 189 }, { waterverplaatsing: 1480, diepgang: 191 }, { waterverplaatsing: 1500, diepgang: 194 },
+        { waterverplaatsing: 1520, diepgang: 196 }, { waterverplaatsing: 1540, diepgang: 199 }, { waterverplaatsing: 1560, diepgang: 201 },
+        { waterverplaatsing: 1580, diepgang: 203 }, { waterverplaatsing: 1600, diepgang: 206 }, { waterverplaatsing: 1620, diepgang: 208 },
+        { waterverplaatsing: 1640, diepgang: 211 }, { waterverplaatsing: 1660, diepgang: 213 }, { waterverplaatsing: 1680, diepgang: 215 },
+        { waterverplaatsing: 1700, diepgang: 218 }, { waterverplaatsing: 1720, diepgang: 220 }, { waterverplaatsing: 1740, diepgang: 223 },
+        { waterverplaatsing: 1760, diepgang: 225 }, { waterverplaatsing: 1780, diepgang: 228 }, { waterverplaatsing: 1800, diepgang: 230 },
+        { waterverplaatsing: 1820, diepgang: 232 }, { waterverplaatsing: 1840, diepgang: 235 }, { waterverplaatsing: 1860, diepgang: 237 },
+        { waterverplaatsing: 1880, diepgang: 240 }, { waterverplaatsing: 1900, diepgang: 242 }, { waterverplaatsing: 1920, diepgang: 244 },
+        { waterverplaatsing: 1940, diepgang: 247 }, { waterverplaatsing: 1960, diepgang: 249 }, { waterverplaatsing: 1980, diepgang: 252 },
+        { waterverplaatsing: 2000, diepgang: 254 }, { waterverplaatsing: 2020, diepgang: 256 }, { waterverplaatsing: 2040, diepgang: 259 },
+        { waterverplaatsing: 2060, diepgang: 261 }, { waterverplaatsing: 2080, diepgang: 263 }, { waterverplaatsing: 2100, diepgang: 266 },
+        { waterverplaatsing: 2120, diepgang: 268 }, { waterverplaatsing: 2140, diepgang: 271 }, { waterverplaatsing: 2160, diepgang: 273 },
+        { waterverplaatsing: 2180, diepgang: 275 }, { waterverplaatsing: 2200, diepgang: 278 }, { waterverplaatsing: 2220, diepgang: 280 },
+        { waterverplaatsing: 2240, diepgang: 283 }, { waterverplaatsing: 2260, diepgang: 285 }, { waterverplaatsing: 2280, diepgang: 287 },
+        { waterverplaatsing: 2300, diepgang: 289 }, { waterverplaatsing: 2320, diepgang: 292 }, { waterverplaatsing: 2340, diepgang: 294 },
+        { waterverplaatsing: 2360, diepgang: 297 }, { waterverplaatsing: 2380, diepgang: 299 }, { waterverplaatsing: 2400, diepgang: 302 },
+        { waterverplaatsing: 2420, diepgang: 304 }, { waterverplaatsing: 2440, diepgang: 306 }, { waterverplaatsing: 2460, diepgang: 309 },
+        { waterverplaatsing: 2480, diepgang: 311 }, { waterverplaatsing: 2500, diepgang: 313 }, { waterverplaatsing: 2520, diepgang: 316 },
+        { waterverplaatsing: 2540, diepgang: 318 }, { waterverplaatsing: 2560, diepgang: 321 }, { waterverplaatsing: 2580, diepgang: 323 },
+        { waterverplaatsing: 2600, diepgang: 325 }, { waterverplaatsing: 2620, diepgang: 328 }, { waterverplaatsing: 2640, diepgang: 330 },
+        { waterverplaatsing: 2660, diepgang: 332 }, { waterverplaatsing: 2680, diepgang: 335 }, { waterverplaatsing: 2700, diepgang: 337 },
+        { waterverplaatsing: 2720, diepgang: 339 }, { waterverplaatsing: 2740, diepgang: 342 }, { waterverplaatsing: 2760, diepgang: 344 },
+        { waterverplaatsing: 2780, diepgang: 346 }, { waterverplaatsing: 2800, diepgang: 349 }
+    ];
+
+    const gmTabelRobijn = [
+        { tonnage: 440, l3: 11.307, l4: 10.177, l5: 8.741 }, { tonnage: 460, l3: 10.930, l4: 9.851, l5: 8.478 },
+        { tonnage: 480, l3: 10.553, l4: 9.556, l5: 8.242 }, { tonnage: 500, l3: 10.589, l4: 9.267, l5: 8.007 },
+        { tonnage: 520, l3: 10.257, l4: 9.004, l5: 7.794 }, { tonnage: 540, l3: 9.955, l4: 8.758, l5: 7.594 },
+        { tonnage: 560, l3: 9.409, l4: 8.528, l5: 7.407 }, { tonnage: 580, l3: 9.158, l4: 8.309, l5: 7.227 },
+        { tonnage: 600, l3: 8.505, l4: 8.109, l5: 7.065 }, { tonnage: 620, l3: 8.711, l4: 7.919, l5: 6.909 },
+        { tonnage: 640, l3: 8.505, l4: 7.739, l5: 6.762 }, { tonnage: 660, l3: 8.312, l4: 7.570, l5: 6.624 },
+        { tonnage: 680, l3: 8.129, l4: 7.410, l5: 6.493 }, { tonnage: 700, l3: 7.957, l4: 7.259, l5: 6.369 },
+        { tonnage: 720, l3: 7.794, l4: 7.117, l5: 6.252 }, { tonnage: 740, l3: 7.640, l4: 6.982, l5: 6.142 },
+        { tonnage: 760, l3: 7.494, l4: 6.854, l5: 6.037 }, { tonnage: 780, l3: 7.351, l4: 6.728, l5: 5.933 },
+        { tonnage: 800, l3: 7.218, l4: 6.612, l5: 5.838 }, { tonnage: 820, l3: 7.092, l4: 6.502, l5: 5.747 },
+        { tonnage: 840, l3: 6.972, l4: 6.397, l5: 5.660 }, { tonnage: 860, l3: 6.858, l4: 6.296, l5: 5.578 },
+        { tonnage: 880, l3: 6.749, l4: 6.201, l5: 5.500 }, { tonnage: 900, l3: 6.644, l4: 6.109, l5: 5.425 },
+        { tonnage: 920, l3: 6.545, l4: 6.022, l5: 5.363 }, { tonnage: 940, l3: 6.450, l4: 5.939, l5: 5.285 },
+        { tonnage: 960, l3: 6.359, l4: 5.859, l5: 5.219 }, { tonnage: 980, l3: 6.271, l4: 5.783, l5: 5.157 },
+        { tonnage: 1000, l3: 6.188, l4: 5.710, l5: 5.097 }, { tonnage: 1020, l3: 6.108, l4: 5.640, l5: 5.040 },
+        { tonnage: 1040, l3: 6.031, l4: 5.573, l5: 4.985 }, { tonnage: 1060, l3: 5.396, l4: 5.508, l5: 4.932 },
+        { tonnage: 1080, l3: 5.887, l4: 5.447, l5: 4.882 }, { tonnage: 1100, l3: 5.819, l4: 5.388, l5: 4.834 },
+        { tonnage: 1120, l3: 5.754, l4: 5.331, l5: 4.787 }, { tonnage: 1140, l3: 5.691, l4: 5.276, l5: 4.743 },
+        { tonnage: 1160, l3: 5.631, l4: 5.224, l5: 4.700 }, { tonnage: 1180, l3: 5.573, l4: 5.173, l5: 4.659 },
+        { tonnage: 1200, l3: 5.518, l4: 5.125, l5: 4.620 }, { tonnage: 1220, l3: 5.464, l4: 5.078, l5: 4.582 },
+        { tonnage: 1240, l3: 5.412, l4: 5.033, l5: 4.546 }, { tonnage: 1260, l3: 5.363, l4: 4.990, l5: 4.511 },
+        { tonnage: 1280, l3: 5.315, l4: 4.948, l5: 4.477 }, { tonnage: 1300, l3: 5.268, l4: 4.908, l5: 4.445 },
+        { tonnage: 1320, l3: 5.224, l4: 4.870, l5: 4.414 }, { tonnage: 1340, l3: 5.181, l4: 4.833, l5: 4.384 },
+        { tonnage: 1360, l3: 5.140, l4: 4.797, l5: 4.355 }, { tonnage: 1380, l3: 5.100, l4: 4.763, l5: 4.328 },
+        { tonnage: 1400, l3: 5.061, l4: 4.730, l5: 4.301 }, { tonnage: 1420, l3: 5.024, l4: 4.698, l5: 4.276 },
+        { tonnage: 1440, l3: 4.989, l4: 4.667, l5: 4.252 }, { tonnage: 1460, l3: 4.954, l4: 4.637, l5: 4.288 },
+        { tonnage: 1480, l3: 4.921, l4: 4.609, l5: 4.205 }, { tonnage: 1500, l3: 4.889, l4: 4.581, l5: 4.184 },
+        { tonnage: 1520, l3: 4.857, l4: 4.554, l5: 4.163 }, { tonnage: 1540, l3: 4.827, l4: 4.529, l5: 4.143 },
+        { tonnage: 1560, l3: 4.799, l4: 4.504, l5: 4.123 }, { tonnage: 1580, l3: 4.771, l4: 4.480, l5: 4.105 },
+        { tonnage: 1600, l3: 4.744, l4: 4.457, l5: 4.087 }, { tonnage: 1620, l3: 4.717, l4: 4.435, l5: 4.070 },
+        { tonnage: 1640, l3: 4.692, l4: 4.414, l5: 4.053 }, { tonnage: 1660, l3: 4.668, l4: 4.393, l5: 4.037 },
+        { tonnage: 1680, l3: 4.644, l4: 4.373, l5: 4.022 }, { tonnage: 1700, l3: 4.622, l4: 4.354, l5: 4.008 },
+        { tonnage: 1720, l3: 4.600, l4: 4.336, l5: 3.994 }, { tonnage: 1740, l3: 4.579, l4: 4.318, l5: 3.980 },
+        { tonnage: 1760, l3: 4.558, l4: 4.301, l5: 3.967 }, { tonnage: 1780, l3: 4.538, l4: 4.264, l5: 3.955 },
+        { tonnage: 1800, l3: 4.519, l4: 4.269, l5: 3.943 }, { tonnage: 1820, l3: 4.501, l4: 4.253, l5: 3.932 },
+        { tonnage: 1840, l3: 4.483, l4: 4.238, l5: 3.921 }, { tonnage: 1860, l3: 4.466, l4: 4.224, l5: 3.910 },
+        { tonnage: 1880, l3: 4.449, l4: 4.211, l5: 3.900 }, { tonnage: 1900, l3: 4.433, l4: 4.197, l5: 3.891 },
+        { tonnage: 1920, l3: 4.418, l4: 4.185, l5: 3.882 }, { tonnage: 1940, l3: 4.403, l4: 4.173, l5: 3.873 },
+        { tonnage: 1960, l3: 4.388, l4: 4.161, l5: 3.865 }, { tonnage: 1980, l3: 4.375, l4: 4.150, l5: 3.857 },
+        { tonnage: 2000, l3: 4.361, l4: 4.139, l5: 3.849 }, { tonnage: 2020, l3: 4.348, l4: 4.128, l5: 3.842 },
+        { tonnage: 2040, l3: 4.336, l4: 4.118, l5: 3.835 }, { tonnage: 2060, l3: 4.324, l4: 4.109, l5: 3.829 },
+        { tonnage: 2080, l3: 4.312, l4: 4.100, l5: 3.822 }, { tonnage: 2100, l3: 4.301, l4: 4.091, l5: 3.817 },
+        { tonnage: 2120, l3: 4.290, l4: 4.082, l5: 3.811 }, { tonnage: 2140, l3: 4.280, l4: 4.074, l5: 3.806 },
+        { tonnage: 2160, l3: 4.270, l4: 4.067, l5: 3.801 }, { tonnage: 2180, l3: 4.261, l4: 4.059, l5: 3.796 },
+        { tonnage: 2200, l3: 4.251, l4: 4.052, l5: 3.792 }, { tonnage: 2220, l3: 4.243, l4: 4.045, l5: 3.788 },
+        { tonnage: 2240, l3: 4.234, l4: 4.039, l5: 3.784 }, { tonnage: 2260, l3: 4.226, l4: 4.033, l5: 3.780 },
+        { tonnage: 2280, l3: 4.218, l4: 4.027, l5: 3.777 }, { tonnage: 2300, l3: 4.211, l4: 4.022, l5: 3.774 },
+        { tonnage: 2320, l3: 4.203, l4: 4.016, l5: 3.771 }, { tonnage: 2340, l3: 4.197, l4: 4.011, l5: 3.769 },
+        { tonnage: 2360, l3: 4.190, l4: 4.007, l5: 3.766 }, { tonnage: 2380, l3: 4.184, l4: 4.002, l5: 3.744 },
+        { tonnage: 2400, l3: 4.176, l4: 3.996, l5: 3.760 }, { tonnage: 2420, l3: 4.126, l4: 3.940, l5: 3.696 },
+        { tonnage: 2440, l3: 4.073, l4: 3.880, l5: 3.627 }, { tonnage: 2460, l3: 4.017, l4: 3.817, l5: 3.555 },
+        { tonnage: 2480, l3: 3.957, l4: 3.749, l5: 3.476 }, { tonnage: 2500, l3: 3.892, l4: 3.675, l5: 3.391 },
+        { tonnage: 2520, l3: 3.822, l4: 3.595, l5: 3.297 }, { tonnage: 2540, l3: 3.745, l4: 3.507, l5: 3.195 },
+        { tonnage: 2560, l3: 3.660, l4: 3.410, l5: 3.081 }, { tonnage: 2580, l3: 3.566, l4: 3.301, l5: 2.954 },
+        { tonnage: 2600, l3: 3.460, l4: 3.179, l5: 2.810 }, { tonnage: 2620, l3: 3.339, l4: 3.040, l5: 2.646 },
+        { tonnage: 2640, l3: 3.201, l4: 2.880, l5: 2.456 }, { tonnage: 2660, l3: 3.040, l4: 2.693, l5: 2.237 },
+        { tonnage: 2680, l3: 2.849, l4: 2.472, l5: 1.974 }, { tonnage: 2700, l3: 2.619, l4: 2.204, l5: 1.656 },
+        { tonnage: 2720, l3: 2.334, l4: 1.872, l5: 1.263 }, { tonnage: 2740, l3: 1.972, l4: 1.450, l5: 0.761 },
+        { tonnage: 2760, l3: 1.495, l4: 0.893, l5: 0.098 }, { tonnage: 2780, l3: 0.835, l4: 0.122, l5: -0.820 },
+        { tonnage: 2800, l3: -0.140, l4: -1.019, l5: -2.180 }
+    ];
+
+    // --- TABELLEN VOOR CANDESSA 2 (Afgeleid van de afbeelding) ---
+    const meetbriefTabelCandessa2 = [
+        { waterverplaatsing: 400, diepgang: 60.6 }, { waterverplaatsing: 420, diepgang: 63.3 },
+        { waterverplaatsing: 440, diepgang: 66.0 }, { waterverplaatsing: 460, diepgang: 68.7 },
+        { waterverplaatsing: 480, diepgang: 71.4 }, { waterverplaatsing: 500, diepgang: 74.1 },
+        { waterverplaatsing: 520, diepgang: 76.8 }, { waterverplaatsing: 540, diepgang: 79.4 },
+        { waterverplaatsing: 560, diepgang: 82.1 }, { waterverplaatsing: 580, diepgang: 84.8 },
+        { waterverplaatsing: 600, diepgang: 87.4 }, { waterverplaatsing: 620, diepgang: 90.1 },
+        { waterverplaatsing: 640, diepgang: 92.7 }, { waterverplaatsing: 660, diepgang: 95.3 },
+        { waterverplaatsing: 680, diepgang: 98.0 }, { waterverplaatsing: 700, diepgang: 100.6 },
+        { waterverplaatsing: 720, diepgang: 103.2 }, { waterverplaatsing: 740, diepgang: 105.8 },
+        { waterverplaatsing: 760, diepgang: 108.4 }, { waterverplaatsing: 780, diepgang: 111.0 },
+        { waterverplaatsing: 800, diepgang: 113.6 }, { waterverplaatsing: 820, diepgang: 116.2 },
+        { waterverplaatsing: 840, diepgang: 118.8 }, { waterverplaatsing: 860, diepgang: 121.4 },
+        { waterverplaatsing: 880, diepgang: 124.0 }, { waterverplaatsing: 900, diepgang: 126.6 },
+        { waterverplaatsing: 920, diepgang: 129.2 }, { waterverplaatsing: 940, diepgang: 131.7 },
+        { waterverplaatsing: 960, diepgang: 134.3 }, { waterverplaatsing: 980, diepgang: 136.9 },
+        { waterverplaatsing: 1000, diepgang: 139.5 }, { waterverplaatsing: 1020, diepgang: 142.1 },
+        { waterverplaatsing: 1040, diepgang: 144.7 }, { waterverplaatsing: 1060, diepgang: 147.2 },
+        { waterverplaatsing: 1080, diepgang: 149.8 }, { waterverplaatsing: 1100, diepgang: 152.4 },
+        { waterverplaatsing: 1120, diepgang: 155.0 }, { waterverplaatsing: 1140, diepgang: 157.6 },
+        { waterverplaatsing: 1160, diepgang: 160.2 }, { waterverplaatsing: 1180, diepgang: 162.7 },
+        { waterverplaatsing: 1200, diepgang: 165.3 }, { waterverplaatsing: 1220, diepgang: 167.9 },
+        { waterverplaatsing: 1240, diepgang: 170.5 }, { waterverplaatsing: 1260, diepgang: 173.0 },
+        { waterverplaatsing: 1280, diepgang: 175.6 }, { waterverplaatsing: 1300, diepgang: 178.2 },
+        { waterverplaatsing: 1320, diepgang: 180.8 }, { waterverplaatsing: 1340, diepgang: 183.4 },
+        { waterverplaatsing: 1360, diepgang: 185.9 }, { waterverplaatsing: 1380, diepgang: 188.5 },
+        { waterverplaatsing: 1400, diepgang: 191.1 }, { waterverplaatsing: 1420, diepgang: 193.7 },
+        { waterverplaatsing: 1440, diepgang: 196.2 }, { waterverplaatsing: 1460, diepgang: 198.8 },
+        { waterverplaatsing: 1480, diepgang: 201.4 }, { waterverplaatsing: 1500, diepgang: 203.9 },
+        { waterverplaatsing: 1520, diepgang: 206.5 }, { waterverplaatsing: 1540, diepgang: 209.1 },
+        { waterverplaatsing: 1560, diepgang: 211.7 }, { waterverplaatsing: 1580, diepgang: 214.2 },
+        { waterverplaatsing: 1600, diepgang: 216.8 }, { waterverplaatsing: 1620, diepgang: 219.4 },
+        { waterverplaatsing: 1640, diepgang: 222.0 }, { waterverplaatsing: 1660, diepgang: 224.5 },
+        { waterverplaatsing: 1680, diepgang: 227.1 }, { waterverplaatsing: 1700, diepgang: 229.7 },
+        { waterverplaatsing: 1720, diepgang: 232.2 }, { waterverplaatsing: 1740, diepgang: 234.8 },
+        { waterverplaatsing: 1760, diepgang: 237.4 }, { waterverplaatsing: 1780, diepgang: 239.9 },
+        { waterverplaatsing: 1800, diepgang: 242.5 }, { waterverplaatsing: 1820, diepgang: 245.1 },
+        { waterverplaatsing: 1840, diepgang: 247.6 }, { waterverplaatsing: 1860, diepgang: 250.2 },
+        { waterverplaatsing: 1880, diepgang: 252.8 }, { waterverplaatsing: 1900, diepgang: 255.3 },
+        { waterverplaatsing: 1920, diepgang: 257.9 }, { waterverplaatsing: 1940, diepgang: 260.5 },
+        { waterverplaatsing: 1960, diepgang: 263.0 }, { waterverplaatsing: 1980, diepgang: 265.6 },
+        { waterverplaatsing: 2000, diepgang: 268.1 }, { waterverplaatsing: 2020, diepgang: 270.7 },
+        { waterverplaatsing: 2040, diepgang: 273.2 }, { waterverplaatsing: 2060, diepgang: 275.8 },
+        { waterverplaatsing: 2080, diepgang: 278.4 }, { waterverplaatsing: 2100, diepgang: 280.9 },
+        { waterverplaatsing: 2120, diepgang: 283.5 }, { waterverplaatsing: 2140, diepgang: 286.0 },
+        { waterverplaatsing: 2160, diepgang: 288.6 }, { waterverplaatsing: 2180, diepgang: 291.1 },
+        { waterverplaatsing: 2200, diepgang: 293.7 }, { waterverplaatsing: 2220, diepgang: 296.2 },
+        { waterverplaatsing: 2240, diepgang: 298.8 }, { waterverplaatsing: 2260, diepgang: 301.3 },
+        { waterverplaatsing: 2280, diepgang: 303.9 }, { waterverplaatsing: 2300, diepgang: 306.4 },
+        { waterverplaatsing: 2320, diepgang: 309.0 }, { waterverplaatsing: 2340, diepgang: 311.5 },
+        { waterverplaatsing: 2360, diepgang: 314.0 }, { waterverplaatsing: 2380, diepgang: 316.6 },
+        { waterverplaatsing: 2400, diepgang: 319.1 }, { waterverplaatsing: 2420, diepgang: 321.7 },
+        { waterverplaatsing: 2440, diepgang: 324.2 }, { waterverplaatsing: 2460, diepgang: 326.8 },
+        { waterverplaatsing: 2480, diepgang: 329.3 }, { waterverplaatsing: 2500, diepgang: 331.8 },
+        { waterverplaatsing: 2520, diepgang: 334.4 }, { waterverplaatsing: 2540, diepgang: 336.9 },
+        { waterverplaatsing: 2560, diepgang: 339.4 }, { waterverplaatsing: 2580, diepgang: 341.9 },
+        { waterverplaatsing: 2600, diepgang: 344.5 }, { waterverplaatsing: 2620, diepgang: 347.0 },
+        { waterverplaatsing: 2640, diepgang: 349.5 }, { waterverplaatsing: 2660, diepgang: 352.0 },
+        { waterverplaatsing: 2680, diepgang: 354.6 }, { waterverplaatsing: 2700, diepgang: 357.1 },
+        { waterverplaatsing: 2720, diepgang: 359.6 }, { waterverplaatsing: 2740, diepgang: 362.1 }
+    ];
+
+    const gmTabelCandessa2 = [
+        { tonnage: 400, l3: 11.576, l4: 10.544 }, { tonnage: 420, l3: 11.140, l4: 10.158 },
+        { tonnage: 440, l3: 10.738, l4: 9.803 }, { tonnage: 460, l3: 10.368, l4: 9.474 },
+        { tonnage: 480, l3: 10.026, l4: 9.171 }, { tonnage: 500, l3: 9.710, l4: 8.891 },
+        { tonnage: 520, l3: 9.417, l4: 8.631 }, { tonnage: 540, l3: 9.145, l4: 8.389 },
+        { tonnage: 560, l3: 8.893, l4: 8.165 }, { tonnage: 580, l3: 8.657, l4: 7.956 },
+        { tonnage: 600, l3: 8.438, l4: 7.761 }, { tonnage: 620, l3: 8.232, l4: 7.578 },
+        { tonnage: 640, l3: 8.039, l4: 7.407 }, { tonnage: 660, l3: 7.858, l4: 7.246 },
+        { tonnage: 680, l3: 7.688, l4: 7.094 }, { tonnage: 700, l3: 7.527, l4: 6.951 },
+        { tonnage: 720, l3: 7.375, l4: 6.816 }, { tonnage: 740, l3: 7.231, l4: 6.689 },
+        { tonnage: 760, l3: 7.096, l4: 6.568 }, { tonnage: 780, l3: 6.967, l4: 6.454 },
+        { tonnage: 800, l3: 6.845, l4: 6.346 }, { tonnage: 820, l3: 6.729, l4: 6.243 },
+        { tonnage: 840, l3: 6.619, l4: 6.145 }, { tonnage: 860, l3: 6.514, l4: 6.051 },
+        { tonnage: 880, l3: 6.413, l4: 5.962 }, { tonnage: 900, l3: 6.317, l4: 5.876 },
+        { tonnage: 920, l3: 6.225, l4: 5.795 }, { tonnage: 940, l3: 6.138, l4: 5.717 },
+        { tonnage: 960, l3: 6.054, l4: 5.643 }, { tonnage: 980, l3: 5.973, l4: 5.572 },
+        { tonnage: 1000, l3: 5.897, l4: 5.503 }, { tonnage: 1020, l3: 5.823, l4: 5.438 },
+        { tonnage: 1040, l3: 5.752, l4: 5.376 }, { tonnage: 1060, l3: 5.685, l4: 5.316 },
+        { tonnage: 1080, l3: 5.620, l4: 5.258 }, { tonnage: 1100, l3: 5.558, l4: 5.203 },
+        { tonnage: 1120, l3: 5.498, l4: 5.150 }, { tonnage: 1140, l3: 5.440, l4: 5.099 },
+        { tonnage: 1160, l3: 5.385, l4: 5.050 }, { tonnage: 1180, l3: 5.332, l4: 5.004 },
+        { tonnage: 1200, l3: 5.281, l4: 4.958 }, { tonnage: 1220, l3: 5.232, l4: 4.915 },
+        { tonnage: 1240, l3: 5.184, l4: 4.874 }, { tonnage: 1260, l3: 5.139, l4: 4.833 },
+        { tonnage: 1280, l3: 5.095, l4: 4.795 }, { tonnage: 1300, l3: 5.053, l4: 4.758 },
+        { tonnage: 1320, l3: 5.012, l4: 4.722 }, { tonnage: 1340, l3: 4.973, l4: 4.688 },
+        { tonnage: 1360, l3: 4.936, l4: 4.655 }, { tonnage: 1380, l3: 4.899, l4: 4.623 },
+        { tonnage: 1400, l3: 4.864, l4: 4.592 }, { tonnage: 1420, l3: 4.830, l4: 4.563 },
+        { tonnage: 1440, l3: 4.798, l4: 4.535 }, { tonnage: 1460, l3: 4.767, l4: 4.507 },
+        { tonnage: 1480, l3: 4.736, l4: 4.481 }, { tonnage: 1500, l3: 4.707, l4: 4.456 },
+        { tonnage: 1520, l3: 4.679, l4: 4.544 }, { tonnage: 1540, l3: 4.652, l4: 4.519 },
+        { tonnage: 1560, l3: 4.626, l4: 4.495 }, { tonnage: 1580, l3: 4.600, l4: 4.472 },
+        { tonnage: 1600, l3: 4.576, l4: 4.449 }, { tonnage: 1620, l3: 4.553, l4: 4.428 },
+        { tonnage: 1640, l3: 4.530, l4: 4.407 }, { tonnage: 1660, l3: 4.508, l4: 4.387 },
+        { tonnage: 1680, l3: 4.487, l4: 4.367 }, { tonnage: 1700, l3: 4.467, l4: 4.349 },
+        { tonnage: 1720, l3: 4.447, l4: 4.232 }, { tonnage: 1740, l3: 4.429, l4: 4.216 },
+        { tonnage: 1760, l3: 4.410, l4: 4.201 }, { tonnage: 1780, l3: 4.393, l4: 4.186 },
+        { tonnage: 1800, l3: 4.376, l4: 4.172 }, { tonnage: 1820, l3: 4.360, l4: 4.158 },
+        { tonnage: 1840, l3: 4.344, l4: 4.145 }, { tonnage: 1860, l3: 4.329, l4: 4.132 },
+        { tonnage: 1880, l3: 4.315, l4: 4.120 }, { tonnage: 1900, l3: 4.301, l4: 4.109 },
+        { tonnage: 1920, l3: 4.287, l4: 4.098 }, { tonnage: 1940, l3: 4.274, l4: 4.087 },
+        { tonnage: 1960, l3: 4.262, l4: 4.077 }, { tonnage: 1980, l3: 4.250, l4: 4.067 },
+        { tonnage: 2000, l3: 4.239, l4: 4.058 }, { tonnage: 2020, l3: 4.228, l4: 4.049 },
+        { tonnage: 2040, l3: 4.217, l4: 4.041 }, { tonnage: 2060, l3: 4.207, l4: 4.033 },
+        { tonnage: 2080, l3: 4.198, l4: 4.025 }, { tonnage: 2100, l3: 4.188, l4: 4.018 },
+        { tonnage: 2120, l3: 4.180, l4: 4.011 }, { tonnage: 2140, l3: 4.171, l4: 4.004 },
+        { tonnage: 2160, l3: 4.163, l4: 3.998 }, { tonnage: 2180, l3: 4.155, l4: 3.992 },
+        { tonnage: 2200, l3: 4.148, l4: 3.987 }, { tonnage: 2220, l3: 4.141, l4: 3.982 },
+        { tonnage: 2240, l3: 4.134, l4: 3.977 }, { tonnage: 2260, l3: 4.128, l4: 3.972 },
+        { tonnage: 2280, l3: 4.122, l4: 3.968 }, { tonnage: 2300, l3: 4.116, l4: 3.964 },
+        { tonnage: 2320, l3: 4.111, l4: 3.960 }, { tonnage: 2340, l3: 4.106, l4: 3.956 },
+        { tonnage: 2360, l3: 4.101, l4: 3.953 }, { tonnage: 2380, l3: 4.097, l4: 3.950 },
+        { tonnage: 2400, l3: 4.076, l4: 3.929 }, { tonnage: 2420, l3: 4.026, l4: 3.873 },
+        { tonnage: 2440, l3: 3.972, l4: 3.813 }, { tonnage: 2460, l3: 3.914, l4: 3.749 },
+        { tonnage: 2480, l3: 3.851, l4: 3.680 }, { tonnage: 2500, l3: 3.783, l4: 3.604 },
+        { tonnage: 2520, l3: 3.709, l4: 3.521 }, { tonnage: 2540, l3: 3.627, l4: 3.430 },
+        { tonnage: 2560, l3: 3.536, l4: 3.328 }, { tonnage: 2580, l3: 3.433, l4: 3.212 },
+        { tonnage: 2600, l3: 3.317, l4: 3.082 }, { tonnage: 2620, l3: 3.184, l4: 2.931 },
+        { tonnage: 2640, l3: 3.027, l4: 2.755 }, { tonnage: 2660, l3: 2.843, l4: 2.546 },
+        { tonnage: 2680, l3: 2.619, l4: 2.293 }, { tonnage: 2700, l3: 2.343, l4: 1.981 },
+        { tonnage: 2720, l3: 1.993, l4: 1.584 }, { tonnage: 2740, l3: 1.531, l4: 1.060 }
+    ];
+
+    // --- COMPLETE MEETBRIEF TABEL VOOR GOTZ 15 ---
+const meetbriefTabelGotz15 = [
+    { waterverplaatsing: 415.4, diepgang: 54 },
+    { waterverplaatsing: 423.5, diepgang: 55 },
+    { waterverplaatsing: 431.6, diepgang: 56 },
+    { waterverplaatsing: 439.7, diepgang: 57 },
+    { waterverplaatsing: 447.8, diepgang: 58 },
+    { waterverplaatsing: 455.9, diepgang: 59 },
+    { waterverplaatsing: 464.0, diepgang: 60 },
+    { waterverplaatsing: 472.1, diepgang: 61 },
+    { waterverplaatsing: 480.3, diepgang: 62 },
+    { waterverplaatsing: 488.4, diepgang: 63 },
+    { waterverplaatsing: 496.6, diepgang: 64 },
+    { waterverplaatsing: 504.4, diepgang: 65 },
+    { waterverplaatsing: 512.6, diepgang: 66 },
+    { waterverplaatsing: 520.7, diepgang: 67 },
+    { waterverplaatsing: 528.9, diepgang: 68 },
+    { waterverplaatsing: 537.1, diepgang: 69 },
+    { waterverplaatsing: 545.3, diepgang: 70 },
+    { waterverplaatsing: 553.5, diepgang: 71 },
+    { waterverplaatsing: 561.7, diepgang: 72 },
+    { waterverplaatsing: 570.0, diepgang: 73 },
+    { waterverplaatsing: 578.2, diepgang: 74 },
+    { waterverplaatsing: 586.4, diepgang: 75 },
+    { waterverplaatsing: 594.7, diepgang: 76 },
+    { waterverplaatsing: 603.0, diepgang: 77 },
+    { waterverplaatsing: 611.2, diepgang: 78 },
+    { waterverplaatsing: 619.5, diepgang: 79 },
+    { waterverplaatsing: 627.8, diepgang: 80 },
+    { waterverplaatsing: 636.1, diepgang: 81 },
+    { waterverplaatsing: 644.4, diepgang: 82 },
+    { waterverplaatsing: 652.7, diepgang: 83 },
+    { waterverplaatsing: 661.0, diepgang: 84 },
+    { waterverplaatsing: 669.4, diepgang: 85 },
+    { waterverplaatsing: 677.7, diepgang: 86 },
+    { waterverplaatsing: 686.1, diepgang: 87 },
+    { waterverplaatsing: 694.4, diepgang: 88 },
+    { waterverplaatsing: 702.8, diepgang: 89 },
+    { waterverplaatsing: 711.2, diepgang: 90 },
+    { waterverplaatsing: 719.5, diepgang: 91 },
+    { waterverplaatsing: 727.9, diepgang: 92 },
+    { waterverplaatsing: 736.3, diepgang: 93 },
+    { waterverplaatsing: 744.7, diepgang: 94 },
+    { waterverplaatsing: 753.1, diepgang: 95 },
+    { waterverplaatsing: 761.5, diepgang: 96 },
+    { waterverplaatsing: 769.9, diepgang: 97 },
+    { waterverplaatsing: 778.3, diepgang: 98 },
+    { waterverplaatsing: 786.7, diepgang: 99 },
+    { waterverplaatsing: 795.1, diepgang: 100 },
+    { waterverplaatsing: 803.5, diepgang: 101 },
+    { waterverplaatsing: 811.9, diepgang: 102 },
+    { waterverplaatsing: 820.3, diepgang: 103 },
+    { waterverplaatsing: 828.7, diepgang: 104 },
+    { waterverplaatsing: 837.1, diepgang: 105 },
+    { waterverplaatsing: 845.6, diepgang: 106 },
+    { waterverplaatsing: 854.0, diepgang: 107 },
+    { waterverplaatsing: 862.4, diepgang: 108 },
+    { waterverplaatsing: 870.8, diepgang: 109 },
+    { waterverplaatsing: 879.3, diepgang: 110 },
+    { waterverplaatsing: 887.7, diepgang: 111 },
+    { waterverplaatsing: 896.2, diepgang: 112 },
+    { waterverplaatsing: 904.6, diepgang: 113 },
+    { waterverplaatsing: 913.0, diepgang: 114 },
+    { waterverplaatsing: 921.5, diepgang: 115 },
+    { waterverplaatsing: 929.9, diepgang: 116 },
+    { waterverplaatsing: 938.4, diepgang: 117 },
+    { waterverplaatsing: 946.8, diepgang: 118 },
+    { waterverplaatsing: 955.3, diepgang: 119 },
+    { waterverplaatsing: 963.7, diepgang: 120 },
+    { waterverplaatsing: 972.2, diepgang: 121 },
+    { waterverplaatsing: 980.7, diepgang: 122 },
+    { waterverplaatsing: 989.1, diepgang: 123 },
+    { waterverplaatsing: 997.6, diepgang: 124 },
+    { waterverplaatsing: 1006.0, diepgang: 125 },
+    { waterverplaatsing: 1015.0, diepgang: 126 },
+    { waterverplaatsing: 1023.0, diepgang: 127 },
+    { waterverplaatsing: 1031.0, diepgang: 128 },
+    { waterverplaatsing: 1040.0, diepgang: 129 },
+    { waterverplaatsing: 1048.0, diepgang: 130 },
+    { waterverplaatsing: 1057.0, diepgang: 131 },
+    { waterverplaatsing: 1065.0, diepgang: 132 },
+    { waterverplaatsing: 1074.0, diepgang: 133 },
+    { waterverplaatsing: 1082.0, diepgang: 134 },
+    { waterverplaatsing: 1091.0, diepgang: 135 },
+    { waterverplaatsing: 1099.0, diepgang: 136 },
+    { waterverplaatsing: 1108.0, diepgang: 137 },
+    { waterverplaatsing: 1116.0, diepgang: 138 },
+    { waterverplaatsing: 1125.0, diepgang: 139 },
+    { waterverplaatsing: 1133.0, diepgang: 140 },
+    { waterverplaatsing: 1142.0, diepgang: 141 },
+    { waterverplaatsing: 1150.0, diepgang: 142 },
+    { waterverplaatsing: 1159.0, diepgang: 143 },
+    { waterverplaatsing: 1167.0, diepgang: 144 },
+    { waterverplaatsing: 1176.0, diepgang: 145 },
+    { waterverplaatsing: 1184.0, diepgang: 146 },
+    { waterverplaatsing: 1193.0, diepgang: 147 },
+    { waterverplaatsing: 1201.0, diepgang: 148 },
+    { waterverplaatsing: 1210.0, diepgang: 149 },
+    { waterverplaatsing: 1218.0, diepgang: 150 },
+    { waterverplaatsing: 1227.0, diepgang: 151 },
+    { waterverplaatsing: 1236.0, diepgang: 152 },
+    { waterverplaatsing: 1244.0, diepgang: 153 },
+    { waterverplaatsing: 1253.0, diepgang: 154 },
+    { waterverplaatsing: 1261.0, diepgang: 155 },
+    { waterverplaatsing: 1270.0, diepgang: 156 },
+    { waterverplaatsing: 1278.0, diepgang: 157 },
+    { waterverplaatsing: 1287.0, diepgang: 158 },
+    { waterverplaatsing: 1295.0, diepgang: 159 },
+    { waterverplaatsing: 1304.0, diepgang: 160 },
+    { waterverplaatsing: 1312.0, diepgang: 161 },
+    { waterverplaatsing: 1321.0, diepgang: 162 },
+    { waterverplaatsing: 1330.0, diepgang: 163 },
+    { waterverplaatsing: 1338.0, diepgang: 164 },
+    { waterverplaatsing: 1347.0, diepgang: 165 },
+    { waterverplaatsing: 1355.0, diepgang: 166 },
+    { waterverplaatsing: 1364.0, diepgang: 167 },
+    { waterverplaatsing: 1372.0, diepgang: 168 },
+    { waterverplaatsing: 1381.0, diepgang: 169 },
+    { waterverplaatsing: 1390.0, diepgang: 170 },
+    { waterverplaatsing: 1398.0, diepgang: 171 },
+    { waterverplaatsing: 1407.0, diepgang: 172 },
+    { waterverplaatsing: 1415.0, diepgang: 173 },
+    { waterverplaatsing: 1424.0, diepgang: 174 },
+    { waterverplaatsing: 1432.0, diepgang: 175 },
+    { waterverplaatsing: 1441.0, diepgang: 176 },
+    { waterverplaatsing: 1450.0, diepgang: 177 },
+    { waterverplaatsing: 1458.0, diepgang: 178 },
+    { waterverplaatsing: 1467.0, diepgang: 179 },
+    { waterverplaatsing: 1475.0, diepgang: 180 },
+    { waterverplaatsing: 1484.0, diepgang: 181 },
+    { waterverplaatsing: 1493.0, diepgang: 182 },
+    { waterverplaatsing: 1501.0, diepgang: 183 },
+    { waterverplaatsing: 1510.0, diepgang: 184 },
+    { waterverplaatsing: 1518.0, diepgang: 185 },
+    { waterverplaatsing: 1527.0, diepgang: 186 },
+    { waterverplaatsing: 1536.0, diepgang: 187 },
+    { waterverplaatsing: 1544.0, diepgang: 188 },
+    { waterverplaatsing: 1553.0, diepgang: 189 },
+    { waterverplaatsing: 1561.0, diepgang: 190 },
+    { waterverplaatsing: 1570.0, diepgang: 191 },
+    { waterverplaatsing: 1579.0, diepgang: 192 },
+    { waterverplaatsing: 1587.0, diepgang: 193 },
+    { waterverplaatsing: 1596.0, diepgang: 194 },
+    { waterverplaatsing: 1604.0, diepgang: 195 },
+    { waterverplaatsing: 1613.0, diepgang: 196 },
+    { waterverplaatsing: 1622.0, diepgang: 197 },
+    { waterverplaatsing: 1630.0, diepgang: 198 },
+    { waterverplaatsing: 1639.0, diepgang: 199 },
+    { waterverplaatsing: 1648.0, diepgang: 200 },
+    { waterverplaatsing: 1656.0, diepgang: 201 },
+    { waterverplaatsing: 1665.0, diepgang: 202 },
+    { waterverplaatsing: 1673.0, diepgang: 203 },
+    { waterverplaatsing: 1682.0, diepgang: 204 },
+    { waterverplaatsing: 1691.0, diepgang: 205 },
+    { waterverplaatsing: 1699.0, diepgang: 206 },
+    { waterverplaatsing: 1708.0, diepgang: 207 },
+    { waterverplaatsing: 1717.0, diepgang: 208 },
+    { waterverplaatsing: 1725.0, diepgang: 209 },
+    { waterverplaatsing: 1734.0, diepgang: 210 },
+    { waterverplaatsing: 1743.0, diepgang: 211 },
+    { waterverplaatsing: 1751.0, diepgang: 212 },
+    { waterverplaatsing: 1760.0, diepgang: 213 },
+    { waterverplaatsing: 1769.0, diepgang: 214 },
+    { waterverplaatsing: 1777.0, diepgang: 215 },
+    { waterverplaatsing: 1786.0, diepgang: 216 },
+    { waterverplaatsing: 1795.0, diepgang: 217 },
+    { waterverplaatsing: 1803.0, diepgang: 218 },
+    { waterverplaatsing: 1812.0, diepgang: 219 },
+    { waterverplaatsing: 1821.0, diepgang: 220 },
+    { waterverplaatsing: 1829.0, diepgang: 221 },
+    { waterverplaatsing: 1838.0, diepgang: 222 },
+    { waterverplaatsing: 1847.0, diepgang: 223 },
+    { waterverplaatsing: 1855.0, diepgang: 224 },
+    { waterverplaatsing: 1864.0, diepgang: 225 },
+    { waterverplaatsing: 1873.0, diepgang: 226 },
+    { waterverplaatsing: 1882.0, diepgang: 227 },
+    { waterverplaatsing: 1890.0, diepgang: 228 },
+    { waterverplaatsing: 1899.0, diepgang: 229 },
+    { waterverplaatsing: 1908.0, diepgang: 230 },
+    { waterverplaatsing: 1916.0, diepgang: 231 },
+    { waterverplaatsing: 1925.0, diepgang: 232 },
+    { waterverplaatsing: 1934.0, diepgang: 233 },
+    { waterverplaatsing: 1942.0, diepgang: 234 },
+    { waterverplaatsing: 1951.0, diepgang: 235 },
+    { waterverplaatsing: 1960.0, diepgang: 236 },
+    { waterverplaatsing: 1968.0, diepgang: 237 },
+    { waterverplaatsing: 1977.0, diepgang: 238 },
+    { waterverplaatsing: 1986.0, diepgang: 239 },
+    { waterverplaatsing: 1995.0, diepgang: 240 },
+    { waterverplaatsing: 2003.0, diepgang: 241 },
+    { waterverplaatsing: 2012.0, diepgang: 242 },
+    { waterverplaatsing: 2021.0, diepgang: 243 },
+    { waterverplaatsing: 2030.0, diepgang: 244 },
+    { waterverplaatsing: 2038.0, diepgang: 245 },
+    { waterverplaatsing: 2047.0, diepgang: 246 },
+    { waterverplaatsing: 2056.0, diepgang: 247 },
+    { waterverplaatsing: 2064.0, diepgang: 248 },
+    { waterverplaatsing: 2073.0, diepgang: 249 },
+    { waterverplaatsing: 2082.0, diepgang: 250 },
+    { waterverplaatsing: 2091.0, diepgang: 251 },
+    { waterverplaatsing: 2099.0, diepgang: 252 },
+    { waterverplaatsing: 2108.0, diepgang: 253 },
+    { waterverplaatsing: 2117.0, diepgang: 254 },
+    { waterverplaatsing: 2126.0, diepgang: 255 },
+    { waterverplaatsing: 2134.0, diepgang: 256 },
+    { waterverplaatsing: 2143.0, diepgang: 257 },
+    { waterverplaatsing: 2152.0, diepgang: 258 },
+    { waterverplaatsing: 2161.0, diepgang: 259 },
+    { waterverplaatsing: 2169.0, diepgang: 260 },
+    { waterverplaatsing: 2178.0, diepgang: 261 },
+    { waterverplaatsing: 2187.0, diepgang: 262 },
+    { waterverplaatsing: 2196.0, diepgang: 263 },
+    { waterverplaatsing: 2204.0, diepgang: 264 },
+    { waterverplaatsing: 2213.0, diepgang: 265 },
+    { waterverplaatsing: 2222.0, diepgang: 266 },
+    { waterverplaatsing: 2231.0, diepgang: 267 },
+    { waterverplaatsing: 2240.0, diepgang: 268 },
+    { waterverplaatsing: 2248.0, diepgang: 269 },
+    { waterverplaatsing: 2257.0, diepgang: 270 },
+    { waterverplaatsing: 2266.0, diepgang: 271 },
+    { waterverplaatsing: 2275.0, diepgang: 272 },
+    { waterverplaatsing: 2283.0, diepgang: 273 },
+    { waterverplaatsing: 2292.0, diepgang: 274 },
+    { waterverplaatsing: 2301.0, diepgang: 275 },
+    { waterverplaatsing: 2310.0, diepgang: 276 },
+    { waterverplaatsing: 2319.0, diepgang: 277 },
+    { waterverplaatsing: 2327.0, diepgang: 278 },
+    { waterverplaatsing: 2336.0, diepgang: 279 },
+    { waterverplaatsing: 2345.0, diepgang: 280 },
+    { waterverplaatsing: 2354.0, diepgang: 281 },
+    { waterverplaatsing: 2363.0, diepgang: 282 },
+    { waterverplaatsing: 2371.0, diepgang: 283 },
+    { waterverplaatsing: 2380.0, diepgang: 284 },
+    { waterverplaatsing: 2389.0, diepgang: 285 },
+    { waterverplaatsing: 2398.0, diepgang: 286 },
+    { waterverplaatsing: 2407.0, diepgang: 287 },
+    { waterverplaatsing: 2415.0, diepgang: 288 },
+    { waterverplaatsing: 2424.0, diepgang: 289 },
+    { waterverplaatsing: 2433.0, diepgang: 290 },
+    { waterverplaatsing: 2442.0, diepgang: 291 },
+    { waterverplaatsing: 2451.0, diepgang: 292 },
+    { waterverplaatsing: 2459.0, diepgang: 293 },
+    { waterverplaatsing: 2468.0, diepgang: 294 },
+    { waterverplaatsing: 2477.0, diepgang: 295 },
+    { waterverplaatsing: 2486.0, diepgang: 296 },
+    { waterverplaatsing: 2495.0, diepgang: 297 },
+    { waterverplaatsing: 2504.0, diepgang: 298 },
+    { waterverplaatsing: 2512.0, diepgang: 299 },
+    { waterverplaatsing: 2521.0, diepgang: 300 },
+    { waterverplaatsing: 2530.0, diepgang: 301 },
+    { waterverplaatsing: 2539.0, diepgang: 302 },
+    { waterverplaatsing: 2548.0, diepgang: 303 },
+    { waterverplaatsing: 2557.0, diepgang: 304 },
+    { waterverplaatsing: 2566.0, diepgang: 305 },
+    { waterverplaatsing: 2574.0, diepgang: 306 },
+    { waterverplaatsing: 2583.0, diepgang: 307 },
+    { waterverplaatsing: 2592.0, diepgang: 308 },
+    { waterverplaatsing: 2601.0, diepgang: 309 },
+    { waterverplaatsing: 2610.0, diepgang: 310 },
+    { waterverplaatsing: 2619.0, diepgang: 311 },
+    { waterverplaatsing: 2628.0, diepgang: 312 },
+    { waterverplaatsing: 2636.0, diepgang: 313 },
+    { waterverplaatsing: 2645.0, diepgang: 314 },
+    { waterverplaatsing: 2654.0, diepgang: 315 },
+    { waterverplaatsing: 2663.0, diepgang: 316 },
+    { waterverplaatsing: 2672.0, diepgang: 317 },
+    { waterverplaatsing: 2681.0, diepgang: 318 },
+    { waterverplaatsing: 2690.0, diepgang: 319 },
+    { waterverplaatsing: 2698.0, diepgang: 320 },
+    { waterverplaatsing: 2707.0, diepgang: 321 },
+    { waterverplaatsing: 2716.0, diepgang: 322 },
+    { waterverplaatsing: 2725.0, diepgang: 323 },
+    { waterverplaatsing: 2734.0, diepgang: 324 },
+    { waterverplaatsing: 2743.0, diepgang: 325 },
+    { waterverplaatsing: 2752.0, diepgang: 326 },
+    { waterverplaatsing: 2761.0, diepgang: 327 },
+    { waterverplaatsing: 2769.0, diepgang: 328 },
+    { waterverplaatsing: 2778.0, diepgang: 329 },
+    { waterverplaatsing: 2787.0, diepgang: 330 },
+    { waterverplaatsing: 2796.0, diepgang: 331 },
+    { waterverplaatsing: 2805.0, diepgang: 332 },
+    { waterverplaatsing: 2814.0, diepgang: 333 },
+    { waterverplaatsing: 2823.0, diepgang: 334 },
+    { waterverplaatsing: 2832.0, diepgang: 335 },
+    { waterverplaatsing: 2841.0, diepgang: 336 },
+    { waterverplaatsing: 2850.0, diepgang: 337 }
+];
+
+// --- COMPLETE GM-TABEL VOOR GOTZ 15 ---
+const gmTabelGotz15 = [
+    { tonnage: 415.4, gm: 869.893 },
+    { tonnage: 423.5, gm: 273.331 },
+    { tonnage: 431.6, gm: 162.407 },
+    { tonnage: 439.7, gm: 115.656 },
+    { tonnage: 447.8, gm: 89.883 },
+    { tonnage: 455.9, gm: 73.554 },
+    { tonnage: 464.0, gm: 62.281 },
+    { tonnage: 472.1, gm: 54.031 },
+    { tonnage: 480.3, gm: 47.679 },
+    { tonnage: 488.4, gm: 42.722 },
+    { tonnage: 496.6, gm: 38.680 },
+    { tonnage: 504.4, gm: 35.453 },
+    { tonnage: 512.6, gm: 32.642 },
+    { tonnage: 520.7, gm: 30.270 },
+    { tonnage: 528.9, gm: 28.211 },
+    { tonnage: 537.1, gm: 26.421 },
+    { tonnage: 545.3, gm: 24.851 },
+    { tonnage: 553.5, gm: 23.462 },
+    { tonnage: 561.7, gm: 22.224 },
+    { tonnage: 570.0, gm: 21.108 },
+    { tonnage: 578.2, gm: 20.109 },
+    { tonnage: 586.4, gm: 19.203 },
+    { tonnage: 594.7, gm: 18.374 },
+    { tonnage: 603.0, gm: 17.616 },
+    { tonnage: 611.2, gm: 16.925 },
+    { tonnage: 619.5, gm: 16.285 },
+    { tonnage: 627.8, gm: 15.694 },
+    { tonnage: 636.1, gm: 15.147 },
+    { tonnage: 644.4, gm: 14.639 },
+    { tonnage: 652.7, gm: 14.166 },
+    { tonnage: 661.0, gm: 13.724 },
+    { tonnage: 669.4, gm: 13.309 },
+    { tonnage: 677.7, gm: 12.922 },
+    { tonnage: 686.1, gm: 12.556 },
+    { tonnage: 694.4, gm: 12.214 },
+    { tonnage: 702.8, gm: 11.890 },
+    { tonnage: 711.2, gm: 11.584 },
+    { tonnage: 719.5, gm: 11.295 },
+    { tonnage: 727.9, gm: 11.021 },
+    { tonnage: 736.3, gm: 10.762 },
+    { tonnage: 744.7, gm: 10.515 },
+    { tonnage: 753.1, gm: 10.280 },
+    { tonnage: 761.5, gm: 10.057 },
+    { tonnage: 769.9, gm: 9.844 },
+    { tonnage: 778.3, gm: 9.641 },
+    { tonnage: 786.7, gm: 9.447 },
+    { tonnage: 795.1, gm: 9.262 },
+    { tonnage: 803.5, gm: 9.085 },
+    { tonnage: 811.9, gm: 8.915 },
+    { tonnage: 820.3, gm: 8.752 },
+    { tonnage: 828.7, gm: 8.596 },
+    { tonnage: 837.1, gm: 8.446 },
+    { tonnage: 845.6, gm: 8.302 },
+    { tonnage: 854.0, gm: 8.163 },
+    { tonnage: 862.4, gm: 8.030 },
+    { tonnage: 870.8, gm: 7.902 },
+    { tonnage: 879.3, gm: 7.778 },
+    { tonnage: 887.7, gm: 7.658 },
+    { tonnage: 896.2, gm: 7.543 },
+    { tonnage: 904.6, gm: 7.432 },
+    { tonnage: 913.0, gm: 7.325 },
+    { tonnage: 921.5, gm: 7.221 },
+    { tonnage: 929.9, gm: 7.121 },
+    { tonnage: 938.4, gm: 7.024 },
+    { tonnage: 946.8, gm: 6.931 },
+    { tonnage: 955.3, gm: 6.840 },
+    { tonnage: 963.7, gm: 6.752 },
+    { tonnage: 972.2, gm: 6.667 },
+    { tonnage: 980.7, gm: 6.584 },
+    { tonnage: 989.1, gm: 6.504 },
+    { tonnage: 997.6, gm: 6.426 },
+    { tonnage: 1006.0, gm: 6.351 },
+    { tonnage: 1015.0, gm: 6.278 },
+    { tonnage: 1023.0, gm: 6.207 },
+    { tonnage: 1031.0, gm: 6.138 },
+    { tonnage: 1040.0, gm: 6.070 },
+    { tonnage: 1048.0, gm: 6.005 },
+    { tonnage: 1057.0, gm: 5.942 },
+    { tonnage: 1065.0, gm: 5.880 },
+    { tonnage: 1074.0, gm: 5.820 },
+    { tonnage: 1082.0, gm: 5.761 },
+    { tonnage: 1091.0, gm: 5.704 },
+    { tonnage: 1099.0, gm: 5.649 },
+    { tonnage: 1108.0, gm: 5.595 },
+    { tonnage: 1116.0, gm: 5.542 },
+    { tonnage: 1125.0, gm: 5.491 },
+    { tonnage: 1133.0, gm: 5.441 },
+    { tonnage: 1142.0, gm: 5.392 },
+    { tonnage: 1150.0, gm: 5.344 },
+    { tonnage: 1159.0, gm: 5.298 },
+    { tonnage: 1167.0, gm: 5.252 },
+    { tonnage: 1176.0, gm: 5.208 },
+    { tonnage: 1184.0, gm: 5.165 },
+    { tonnage: 1193.0, gm: 5.123 },
+    { tonnage: 1201.0, gm: 5.081 },
+    { tonnage: 1210.0, gm: 5.041 },
+    { tonnage: 1218.0, gm: 5.002 },
+    { tonnage: 1227.0, gm: 4.963 },
+    { tonnage: 1236.0, gm: 4.926 },
+    { tonnage: 1244.0, gm: 4.889 },
+    { tonnage: 1253.0, gm: 4.853 },
+    { tonnage: 1261.0, gm: 4.818 },
+    { tonnage: 1270.0, gm: 4.784 },
+    { tonnage: 1278.0, gm: 4.750 },
+    { tonnage: 1287.0, gm: 4.717 },
+    { tonnage: 1295.0, gm: 4.685 },
+    { tonnage: 1304.0, gm: 4.654 },
+    { tonnage: 1312.0, gm: 4.623 },
+    { tonnage: 1321.0, gm: 4.593 },
+    { tonnage: 1330.0, gm: 4.563 },
+    { tonnage: 1338.0, gm: 4.534 },
+    { tonnage: 1347.0, gm: 4.506 },
+    { tonnage: 1355.0, gm: 4.478 },
+    { tonnage: 1364.0, gm: 4.451 },
+    { tonnage: 1372.0, gm: 4.424 },
+    { tonnage: 1381.0, gm: 4.398 },
+    { tonnage: 1390.0, gm: 4.373 },
+    { tonnage: 1398.0, gm: 4.348 },
+    { tonnage: 1407.0, gm: 4.323 },
+    { tonnage: 1415.0, gm: 4.299 },
+    { tonnage: 1424.0, gm: 4.276 },
+    { tonnage: 1432.0, gm: 4.253 },
+    { tonnage: 1441.0, gm: 4.230 },
+    { tonnage: 1450.0, gm: 4.208 },
+    { tonnage: 1458.0, gm: 4.186 },
+    { tonnage: 1467.0, gm: 4.165 },
+    { tonnage: 1475.0, gm: 4.144 },
+    { tonnage: 1484.0, gm: 4.123 },
+    { tonnage: 1493.0, gm: 4.103 },
+    { tonnage: 1501.0, gm: 4.083 },
+    { tonnage: 1510.0, gm: 4.064 },
+    { tonnage: 1518.0, gm: 4.045 },
+    { tonnage: 1527.0, gm: 4.026 },
+    { tonnage: 1536.0, gm: 4.008 },
+    { tonnage: 1544.0, gm: 3.990 },
+    { tonnage: 1553.0, gm: 3.972 },
+    { tonnage: 1561.0, gm: 3.955 },
+    { tonnage: 1570.0, gm: 3.938 },
+    { tonnage: 1579.0, gm: 3.921 },
+    { tonnage: 1587.0, gm: 3.905 },
+    { tonnage: 1596.0, gm: 3.889 },
+    { tonnage: 1604.0, gm: 3.873 },
+    { tonnage: 1613.0, gm: 3.857 },
+    { tonnage: 1622.0, gm: 3.842 },
+    { tonnage: 1630.0, gm: 3.827 },
+    { tonnage: 1639.0, gm: 3.812 },
+    { tonnage: 1648.0, gm: 3.798 },
+    { tonnage: 1656.0, gm: 3.784 },
+    { tonnage: 1665.0, gm: 3.770 },
+    { tonnage: 1673.0, gm: 3.756 },
+    { tonnage: 1682.0, gm: 3.743 },
+    { tonnage: 1691.0, gm: 3.730 },
+    { tonnage: 1699.0, gm: 3.717 },
+    { tonnage: 1708.0, gm: 3.704 },
+    { tonnage: 1717.0, gm: 3.692 },
+    { tonnage: 1725.0, gm: 3.679 },
+    { tonnage: 1734.0, gm: 3.667 },
+    { tonnage: 1743.0, gm: 3.656 },
+    { tonnage: 1751.0, gm: 3.644 },
+    { tonnage: 1760.0, gm: 3.632 },
+    { tonnage: 1769.0, gm: 3.621 },
+    { tonnage: 1777.0, gm: 3.610 },
+    { tonnage: 1786.0, gm: 3.599 },
+    { tonnage: 1795.0, gm: 3.589 },
+    { tonnage: 1803.0, gm: 3.578 },
+    { tonnage: 1812.0, gm: 3.568 },
+    { tonnage: 1821.0, gm: 3.558 },
+    { tonnage: 1829.0, gm: 3.548 },
+    { tonnage: 1838.0, gm: 3.538 },
+    { tonnage: 1847.0, gm: 3.529 },
+    { tonnage: 1855.0, gm: 3.519 },
+    { tonnage: 1864.0, gm: 3.510 },
+    { tonnage: 1873.0, gm: 3.501 },
+    { tonnage: 1882.0, gm: 3.492 },
+    { tonnage: 1890.0, gm: 3.483 },
+    { tonnage: 1899.0, gm: 3.475 },
+    { tonnage: 1908.0, gm: 3.466 },
+    { tonnage: 1916.0, gm: 3.458 },
+    { tonnage: 1925.0, gm: 3.450 },
+    { tonnage: 1934.0, gm: 3.442 },
+    { tonnage: 1942.0, gm: 3.434 },
+    { tonnage: 1951.0, gm: 3.426 },
+    { tonnage: 1960.0, gm: 3.419 },
+    { tonnage: 1968.0, gm: 3.411 },
+    { tonnage: 1977.0, gm: 3.404 },
+    { tonnage: 1986.0, gm: 3.397 },
+    { tonnage: 1995.0, gm: 3.390 },
+    { tonnage: 2003.0, gm: 3.383 },
+    { tonnage: 2012.0, gm: 3.376 },
+    { tonnage: 2021.0, gm: 3.369 },
+    { tonnage: 2030.0, gm: 3.363 },
+    { tonnage: 2038.0, gm: 3.356 },
+    { tonnage: 2047.0, gm: 3.350 },
+    { tonnage: 2056.0, gm: 3.344 },
+    { tonnage: 2064.0, gm: 3.337 },
+    { tonnage: 2073.0, gm: 3.332 },
+    { tonnage: 2082.0, gm: 3.326 },
+    { tonnage: 2091.0, gm: 3.320 },
+    { tonnage: 2099.0, gm: 3.314 },
+    { tonnage: 2108.0, gm: 3.309 },
+    { tonnage: 2117.0, gm: 3.303 },
+    { tonnage: 2126.0, gm: 3.298 },
+    { tonnage: 2134.0, gm: 3.293 },
+    { tonnage: 2143.0, gm: 3.287 },
+    { tonnage: 2152.0, gm: 3.282 },
+    { tonnage: 2161.0, gm: 3.278 },
+    { tonnage: 2169.0, gm: 3.272 },
+    { tonnage: 2178.0, gm: 3.268 },
+    { tonnage: 2187.0, gm: 3.263 },
+    { tonnage: 2196.0, gm: 3.259 },
+    { tonnage: 2204.0, gm: 3.254 },
+    { tonnage: 2213.0, gm: 3.250 },
+    { tonnage: 2222.0, gm: 3.245 },
+    { tonnage: 2231.0, gm: 3.241 },
+    { tonnage: 2240.0, gm: 3.237 },
+    { tonnage: 2248.0, gm: 3.233 },
+    { tonnage: 2257.0, gm: 3.229 },
+    { tonnage: 2266.0, gm: 3.225 },
+    { tonnage: 2275.0, gm: 3.221 },
+    { tonnage: 2283.0, gm: 3.217 },
+    { tonnage: 2292.0, gm: 3.214 },
+    { tonnage: 2301.0, gm: 3.210 },
+    { tonnage: 2310.0, gm: 3.207 },
+    { tonnage: 2319.0, gm: 3.203 },
+    { tonnage: 2327.0, gm: 3.200 },
+    { tonnage: 2336.0, gm: 3.197 },
+    { tonnage: 2345.0, gm: 3.193 },
+    { tonnage: 2354.0, gm: 3.190 },
+    { tonnage: 2363.0, gm: 3.187 },
+    { tonnage: 2371.0, gm: 3.184 },
+    { tonnage: 2380.0, gm: 3.181 },
+    { tonnage: 2389.0, gm: 3.178 },
+    { tonnage: 2398.0, gm: 3.176 },
+    { tonnage: 2407.0, gm: 3.173 },
+    { tonnage: 2415.0, gm: 3.170 },
+    { tonnage: 2424.0, gm: 3.167 },
+    { tonnage: 2433.0, gm: 3.165 },
+    { tonnage: 2442.0, gm: 3.162 },
+    { tonnage: 2451.0, gm: 3.160 },
+    { tonnage: 2459.0, gm: 3.158 },
+    { tonnage: 2468.0, gm: 3.155 },
+    { tonnage: 2477.0, gm: 3.153 },
+    { tonnage: 2486.0, gm: 3.151 },
+    { tonnage: 2495.0, gm: 3.149 },
+    { tonnage: 2504.0, gm: 3.147 },
+    { tonnage: 2512.0, gm: 3.145 },
+    { tonnage: 2521.0, gm: 3.143 },
+    { tonnage: 2530.0, gm: 3.141 },
+    { tonnage: 2539.0, gm: 3.139 },
+    { tonnage: 2548.0, gm: 3.137 },
+    { tonnage: 2557.0, gm: 3.136 },
+    { tonnage: 2566.0, gm: 3.134 },
+    { tonnage: 2574.0, gm: 3.132 },
+    { tonnage: 2583.0, gm: 3.131 },
+    { tonnage: 2592.0, gm: 3.129 },
+    { tonnage: 2601.0, gm: 3.128 },
+    { tonnage: 2610.0, gm: 3.126 },
+    { tonnage: 2619.0, gm: 3.125 },
+    { tonnage: 2628.0, gm: 3.123 },
+    { tonnage: 2636.0, gm: 3.122 },
+    { tonnage: 2645.0, gm: 3.121 },
+    { tonnage: 2654.0, gm: 3.120 },
+    { tonnage: 2663.0, gm: 3.119 },
+    { tonnage: 2672.0, gm: 3.118 },
+    { tonnage: 2681.0, gm: 3.116 },
+    { tonnage: 2690.0, gm: 3.115 },
+    { tonnage: 2698.0, gm: 3.114 },
+    { tonnage: 2707.0, gm: 3.114 },
+    { tonnage: 2716.0, gm: 3.113 },
+    { tonnage: 2725.0, gm: 3.112 },
+    { tonnage: 2734.0, gm: 3.111 },
+    { tonnage: 2743.0, gm: 3.110 },
+    { tonnage: 2752.0, gm: 3.110 },
+    { tonnage: 2761.0, gm: 3.109 },
+    { tonnage: 2769.0, gm: 3.108 },
+    { tonnage: 2778.0, gm: 3.108 },
+    { tonnage: 2787.0, gm: 3.107 },
+    { tonnage: 2796.0, gm: 3.107 },
+    { tonnage: 2805.0, gm: 3.106 },
+    { tonnage: 2814.0, gm: 3.106 },
+    { tonnage: 2823.0, gm: 3.105 },
+    { tonnage: 2832.0, gm: 3.105 },
+    { tonnage: 2841.0, gm: 3.105 },
+    { tonnage: 2850.0, gm: 3.105 }
+];
+
+function zoekDiepgangEnCm(waterverplaatsing, schipType) {
+    let tabel = meetbriefTabelSea4;
+    if (schipType === 'ROBIJN') tabel = meetbriefTabelRobijn;
+    if (schipType === 'CANDESSA 2') tabel = meetbriefTabelCandessa2;
+    if (schipType === 'GOTZ 15') tabel = meetbriefTabelGotz15;
+
+    if (waterverplaatsing < tabel[0].waterverplaatsing) return { cm: tabel[0].diepgang, tekst: "Lichter dan meetbrief" };
+    if (waterverplaatsing > tabel[tabel.length - 1].waterverplaatsing) return { cm: tabel[tabel.length - 1].diepgang, tekst: "Zwaarder dan meetbrief" }; 
+
+    // Doorloop de tabel om te interpoleren
+    for (let i = 0; i < tabel.length - 1; i++) {
+        let onder = tabel[i];
+        let boven = tabel[i + 1];
+
+        if (waterverplaatsing >= onder.waterverplaatsing && waterverplaatsing <= boven.waterverplaatsing) {
+            let fractie = (waterverplaatsing - onder.waterverplaatsing) / (boven.waterverplaatsing - onder.waterverplaatsing);
+            let diepgangCm = onder.diepgang + fractie * (boven.diepgang - onder.diepgang);
+            let diepgangMeters = diepgangCm / 100;
+            return { 
+                cm: diepgangCm, 
+                tekst: `${diepgangMeters.toFixed(2)} m` 
+            };
+        }
+    }
+    
+    return { cm: tabel[0].diepgang, tekst: "Onbekend" };
+}
+
+    function zoekGM(waterverplaatsing, aantalLagen, schipType) {
+
+        // --- 1. SPECIALE LOGICA VOOR GOTZ 15 (Gelijke GM ongeacht lagen) ---
+    if (schipType === 'GOTZ 15') {
+        let tabel = gmTabelGotz15;
+        let onderObj = tabel[0];
+        let bovenObj = tabel[tabel.length - 1];
+
+        if (waterverplaatsing < onderObj.tonnage) return onderObj.gm.toFixed(3) + " m";
+        if (waterverplaatsing > bovenObj.tonnage) return bovenObj.gm.toFixed(3) + " m";
+
+        for (let i = 0; i < tabel.length - 1; i++) {
+            if (waterverplaatsing >= tabel[i].tonnage && waterverplaatsing <= tabel[i + 1].tonnage) {
+                onderObj = tabel[i];
+                bovenObj = tabel[i + 1];
+                break;
+            }
+        }
+
+        // Lineaire interpolatie tussen de twee dichtstbijzijnde tonnages uit de tabel
+        let fractieTon = (waterverplaatsing - onderObj.tonnage) / (bovenObj.tonnage - onderObj.tonnage || 1);
+        let definitieveGM = onderObj.gm + fractieTon * (bovenObj.gm - onderObj.gm);
+        return definitieveGM.toFixed(3) + " m";
+    }
+
+        if (schipType === 'CANDESSA 2') {
+            if (aantalLagen > 4) aantalLagen = 4;
+            if (aantalLagen < 3) aantalLagen = 3; // Candessa 2 gebruikt de kolommen l3/l4 uit tabel
+            let tabel = gmTabelCandessa2;
+            let onderObj = tabel[0];
+            let bovenObj = tabel[tabel.length - 1];
+
+            for (let i = 0; i < tabel.length - 1; i++) {
+                if (waterverplaatsing >= tabel[i].tonnage && waterverplaatsing <= tabel[i + 1].tonnage) {
+                    onderObj = tabel[i];
+                    bovenObj = tabel[i + 1];
+                    break;
+                }
+            }
+            let getVal = (obj, lagen) => (lagen === 3 ? obj.l3 : obj.l4);
+            let fractieTon = (waterverplaatsing - onderObj.tonnage) / (bovenObj.tonnage - onderObj.tonnage || 1);
+            let laagBeneden = Math.floor(aantalLagen);
+            let laagBoven = Math.ceil(aantalLagen);
+            let fractieLaag = aantalLagen - laagBeneden;
+
+            let gmOnder = getVal(onderObj, laagBeneden) + fractieLaag * (getVal(onderObj, laagBoven) - getVal(onderObj, laagBeneden));
+            let gmBoven = getVal(bovenObj, laagBeneden) + fractieLaag * (getVal(bovenObj, laagBoven) - getVal(bovenObj, laagBeneden));
+            let definitieveGM = gmOnder + fractieTon * (gmBoven - gmOnder);
+            return definitieveGM.toFixed(3) + " m";
+        }
+
+        if (aantalLagen <= 2) {
+            return schipType === 'ROBIJN' ? "13.672 m" : "13.57 m";
+        }
+
+        if (aantalLagen > 5) aantalLagen = 5;
+        let tabel = schipType === 'ROBIJN' ? gmTabelRobijn : gmTabelSea4;
+
+        let onderObj = tabel[0];
+        let bovenObj = tabel[tabel.length - 1];
+
+        for (let i = 0; i < tabel.length - 1; i++) {
+            if (waterverplaatsing >= tabel[i].tonnage && waterverplaatsing <= tabel[i + 1].tonnage) {
+                onderObj = tabel[i];
+                bovenObj = tabel[i + 1];
+                break;
+            }
+        }
+
+        let getVal = (obj, lagen) => {
+            if (lagen === 3) return obj.l3;
+            if (lagen === 4) return obj.l4;
+            return obj.l5;
+        };
+
+        let fractieTon = (waterverplaatsing - onderObj.tonnage) / (bovenObj.tonnage - onderObj.tonnage || 1);
+        let laagBeneden = Math.floor(aantalLagen);
+        let laagBoven = Math.ceil(aantalLagen);
+        let fractieLaag = aantalLagen - laagBeneden;
+
+        let gmOnder = getVal(onderObj, laagBeneden) + fractieLaag * (getVal(onderObj, laagBoven) - getVal(onderObj, laagBeneden));
+        let gmBoven = getVal(bovenObj, laagBeneden) + fractieLaag * (getVal(bovenObj, laagBoven) - getVal(bovenObj, laagBeneden));
+        
+        let definitieveGM = gmOnder + fractieTon * (gmBoven - gmOnder);
+        return definitieveGM.toFixed(3) + " m";
+    }
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const textarea = document.getElementById('baplieInput');
+
+    if (dropZone) {
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) leesBestand(e.dataTransfer.files[0]);
+        });
+    }
+    
+    if (fileInput) {
+        fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) leesBestand(e.target.files[0]); });
+    }
+
+    function leesBestand(bestand) {
+        if (!bestand) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const content = event.target.result;
+            const textareaEl = document.getElementById('baplieInput');
+            if (textareaEl) {
+                textareaEl.value = content;
+            }
+            parseBaplie();
+        };
+        reader.readAsText(bestand);
+    }
+    function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        leesBestand(file);
+    }
+}
+
+    function parseBaplie() {
+        const textareaEl = document.getElementById('baplieInput');
+        if (!textareaEl) return;
+        
+        const rawData = textareaEl.value;
+        const regels = rawData.split(/[\r\n]+/);
+        
+        let containers = [];
+        let scheepsNaam = "Onbekend";
+        let huidigeLocatie = null;
+        let huidigGewicht = 0;
+        let totalCargoWeight = 0;
+
+        regels.forEach(regel => {
+            let line = regel.trim();
+            if (line.startsWith('TDT+')) {
+                let parts = line.split(':');
+                for (let i = 0; i < parts.length; i++) {
+                    let cleaned = parts[i].replace("'", "").trim();
+                    if (isNaN(cleaned) && cleaned.length > 1 && !cleaned.includes('DP WORLD') && !cleaned.includes('ZZZ')) {
+                        scheepsNaam = cleaned;
+                    }
+                }
+            }
+            if (line.startsWith('LOC+147+')) {
+                let parts = line.split('+');
+                if (parts.length >= 3) huidigeLocatie = parts[2].split(':')[0]; 
+            }
+            if (line.startsWith('MEA+') && line.includes('KGM')) {
+                let match = line.match(/KGM:([0-9.]+)/);
+                if (match) huidigGewicht = parseFloat(match[1]); 
+            }
+
+            if (huidigeLocatie && huidigGewicht > 0) {
+                let gewichtTon = huidigGewicht / 1000; 
+                containers.push({ locatie: huidigeLocatie, gewichtKg: huidigGewicht });
+                totalCargoWeight += gewichtTon;
+                huidigeLocatie = null;
+                huidigGewicht = 0;
+            }
+        });
+
+        let tierData = {};
+        let totaalGewichtKg = 0;
+        let totaalContainersCount = 0;
+
+        containers.forEach(c => {
+            let tier = "Onbekend";
+            if (c.locatie.length >= 7) tier = c.locatie.slice(5, 7);
+
+            if (!tierData[tier]) tierData[tier] = { count: 0, weightKg: 0 };
+            tierData[tier].count += 1;
+            tierData[tier].weightKg += c.gewichtKg;
+
+            totaalGewichtKg += c.gewichtKg;
+            totaalContainersCount += 1;
+        });
+
+        let naamUpper = scheepsNaam.toUpperCase();
+        let schipType = 'SEA 4'; 
+
+        if (naamUpper.includes("ROBIJN")) {
+           schipType = 'ROBIJN';
+        } else if (naamUpper.includes("CANDESSA")) {
+          schipType = 'CANDESSA 2';
+        } else if (naamUpper.includes("GOTZ 15") || naamUpper.includes("GOTZ 16") || naamUpper.includes("GOTZ")) {
+          schipType = 'GOTZ 15'; 
+        }
+        
+        let leegSchipTon = 411;
+        let schipFactor = 2.2;
+        let addWaterverplaatsing = 39;
+        let heeftVoorraad = false;
+
+        if (schipType === 'SEA 4') {
+            leegSchipTon = 411;
+            schipFactor = 2.2;
+            addWaterverplaatsing = 39;
+        } else if (schipType === 'ROBIJN') {
+            leegSchipTon = 425;
+            schipFactor = 2.106;
+            addWaterverplaatsing = 19;
+            heeftVoorraad = true;
+        } else if (schipType === 'CANDESSA 2') {
+            leegSchipTon = 380.85;
+            schipFactor = 2.208; 
+            addWaterverplaatsing = 19;
+        }  else if (schipType === 'GOTZ 15') {
+            leegSchipTon = 0;
+            schipFactor = 0; 
+            addWaterverplaatsing = 423.8;
+        }
+
+        const factorenSea4 = { "02": 1.97, "04": 4.87, "06": 7.77, "08": 10.67, "10": 13.57 };
+        const factorenRobijn = { "02": 2.072, "04": 4.972, "06": 7.872, "08": 10.722, "10": 13.672 };
+        const factorenCandessa2 = { "02": 1.97, "04": 4.865, "06": 7.761, "08": 10.657 };
+        const factorenGotz15 = { "02": 1.45, "04": 4.35, "06": 7.25, "08": 10.15 }; 
+
+        let factoren = factorenSea4;
+        if (schipType === 'ROBIJN') factoren = factorenRobijn;
+        if (schipType === 'CANDESSA 2') factoren = factorenCandessa2;
+        if (schipType === 'GOTZ 15') factoren = factorenGotz15; 
+        
+        let tbodyTier = document.querySelector('#resultTable tbody');
+        if (!tbodyTier) return;
+        tbodyTier.innerHTML = '';
+
+        let somTotaalGewichtTon = 0;
+        let somTotaalMoment = 0;
+
+        if (leegSchipTon > 0) {
+            let schipMoment = leegSchipTon * schipFactor;
+            somTotaalGewichtTon += leegSchipTon;
+            somTotaalMoment += schipMoment;
+
+            tbodyTier.innerHTML += `<tr class="ship-row">
+                <td>Leeg Schip (${scheepsNaam})</td><td>-</td>
+                <td>${leegSchipTon.toFixed(2)} ton</td><td>${schipFactor.toFixed(3)}</td><td>${schipMoment.toFixed(3)}</td>
+            </tr>`;
+        }
+
+        if (heeftVoorraad) {
+            let voorraadTon = 1;
+            let voorraadFactor = 2.5;
+            let voorraadMoment = voorraadTon * voorraadFactor;
+            somTotaalGewichtTon += voorraadTon;
+            somTotaalMoment += voorraadMoment;
+
+            tbodyTier.innerHTML += `<tr class="stock-row">
+                <td>Voorraad</td><td>-</td>
+                <td>${voorraadTon.toFixed(2)} ton</td><td>${voorraadFactor.toFixed(3)}</td><td>${voorraadMoment.toFixed(3)}</td>
+            </tr>`;
+            let voorraadRegel = document.getElementById('voorraadRegel');
+            if (voorraadRegel) voorraadRegel.style.display = 'block';
+        } else {
+            let voorraadRegel = document.getElementById('voorraadRegel');
+            if (voorraadRegel) voorraadRegel.style.display = 'none';
+        }
+
+        let sortedTiers = Object.keys(tierData).sort();
+        let uniekeLagenAantal = sortedTiers.length;
+
+        if (sortedTiers.length === 0 && leegSchipTon === 0) {
+            tbodyTier.innerHTML = '<tr><td colspan="5">Geen geldige containerdata gevonden.</td></tr>';
+        } else {
+            sortedTiers.forEach(tier => {
+                let data = tierData[tier];
+                let gewichtTon = data.weightKg / 1000;
+                let factor = factoren[tier] !== undefined ? factoren[tier] : 1.00;
+                let moment = gewichtTon * factor;
+
+                somTotaalGewichtTon += gewichtTon;
+                somTotaalMoment += moment;
+
+                tbodyTier.innerHTML += `<tr>
+                    <td>Laag ${tier / 2}</td><td>${data.count}</td>
+                    <td>${gewichtTon.toFixed(2)} ton</td><td>${factor.toFixed(3)}</td><td>${moment.toFixed(3)}</td>
+                </tr>`;
+            });
+
+            tbodyTier.innerHTML += `<tr class="total-row">
+                <td>TOTAAL</td><td>${totaalContainersCount}</td>
+                <td>${somTotaalGewichtTon.toFixed(2)} ton</td><td>-</td><td>${somTotaalMoment.toFixed(3)}</td>
+            </tr>`;
+        }
+
+        // --- AFBEELDING DYNAMISCH AANPASSEN ---
+        let duwbakImg = document.getElementById('duwbakAfbeelding');
+        if (duwbakImg) {
+            // Zorg ervoor dat het aantal lagen tussen 1 en 5 blijft
+            let aantalLagen = Math.min(Math.max(uniekeLagenAantal, 1), 5);
+            
+            // Verander de bron (src) op basis van het aantal lagen
+            duwbakImg.src = `Duwbak ${aantalLagen} hoog.png`;
+        }
+
+        let totaalTonnageLading = totaalGewichtKg / 1000;
+        let waterverplaatsing = somTotaalGewichtTon + addWaterverplaatsing;
+        
+        let diepgangInfo = zoekDiepgangEnCm(waterverplaatsing, schipType);
+        let berekendeGM = zoekGM(waterverplaatsing, uniekeLagenAantal, schipType);
+        let kgBerekend = somTotaalGewichtTon > 0 ? (somTotaalMoment / somTotaalGewichtTon) : 0;
+
+        let summaryOutput = document.getElementById('summaryOutput');
+        if (summaryOutput) {
+            summaryOutput.innerHTML = `
+                <h3>Resultaten</h3>
+                <p>Scheepsnaam: <strong>${scheepsNaam}</strong></p>
+                ${heeftVoorraad ? '<p>Voorraad: <strong>1 ton</strong></p>' : ''}
+                <p>Tonnage: <strong>${somTotaalGewichtTon.toFixed(2)} ton</strong></p>
+                <p>Totale Waterverplaatsing: <strong>${waterverplaatsing.toFixed(2)} ton</strong></p>
+                <p> Diepgang: <strong>${diepgangInfo.tekst}</strong></p>
+
+                <p>Max KG-waarde:<strong> <span id="gmResultaat">${berekendeGM}</span></strong></p>
+                <p> Huidige KG: <strong><span id="kgResultaat">${kgBerekend.toFixed(3)}</span> m</strong></p>
+            `;
+// --- KLEUR LOGICA ---
+            let kgElement = document.getElementById('kgResultaat');
+            let gmElement = document.getElementById('gmResultaat');
+            
+            if (kgElement && gmElement) {
+                let huidigeKg = parseFloat(kgElement.innerText);
+                let maxKg = parseFloat(gmElement.innerText);
+
+                if (huidigeKg > maxKg) {
+                    kgElement.classList.remove('text-green');
+                    kgElement.classList.add('text-red'); // Alleen het getal wordt rood
+                } else {
+                    kgElement.classList.remove('text-red');
+                    kgElement.classList.add('text-green'); // Alleen het getal wordt groen
+                }
+            }
+        }
+    }
+
+</script>
+
+</body>
+</html>
