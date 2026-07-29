@@ -305,6 +305,51 @@
     height: auto;
     display: block;
 }
+
+/* Fullscreen Drag Overlay Styling */
+.drag-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(2, 6, 23, 0.85);
+    backdrop-filter: blur(12px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.drag-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.drag-box {
+    border: 3px dashed #3b82f6;
+    border-radius: 2rem;
+    padding: 3rem 4rem;
+    text-align: center;
+    background: rgba(30, 64, 175, 0.25);
+    box-shadow: 0 0 50px rgba(59, 130, 246, 0.4);
+    transform: scale(0.95);
+    transition: transform 0.2s ease;
+}
+
+.drag-overlay.active .drag-box {
+    transform: scale(1);
+}
+
+.drag-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1rem auto;
+    color: #3b82f6;
+}
     </style>
 </head>
 <body>
@@ -375,7 +420,15 @@
         </div>
 
     </div>
-
+<div id="dragOverlay" class="drag-overlay">
+    <div class="drag-box">
+        <svg xmlns="http://www.w3.org/2000/svg" class="drag-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        </svg>
+        <p class="text-xl font-bold text-white">Laat het BAPLIE-bestand hier los</p>
+        <p class="text-sm text-slate-300 mt-1">Het bestand wordt direct verwerkt</p>
+    </div>
+</div>
 </body>
 <script>
     // --- TABELLEN VOOR SEA 4 ---
@@ -1644,7 +1697,81 @@ function zoekDiepgangEnCm(waterverplaatsing, schipType) {
             }
         }
     }
+// ==========================================
+// DRAG & DROP EN BESTANDSOPSLAG LOGICA
+// ==========================================
 
+let dragCounter = 0;
+const dragOverlay = document.getElementById('dragOverlay');
+
+// 1. Voorkom dat de browser het bestand als pagina opent
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    window.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    }, false);
+});
+
+// 2. Visuele overlay tonen/verbergen
+window.addEventListener('dragenter', () => {
+    dragCounter++;
+    if (dragOverlay) {
+        dragOverlay.classList.add('active');
+    }
+});
+
+window.addEventListener('dragleave', () => {
+    dragCounter--;
+    if (dragCounter <= 0) {
+        dragCounter = 0;
+        if (dragOverlay) {
+            dragOverlay.classList.remove('active');
+        }
+    }
+});
+
+// 3. Bestand verwerken bij neerzetten (drop)
+window.addEventListener('drop', (e) => {
+    dragCounter = 0;
+    if (dragOverlay) {
+        dragOverlay.classList.remove('active');
+    }
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        leesBestandEnBereken(files[0]);
+    }
+});
+
+// 4. Verwerken via de knop "Baplie Lever"
+function handleFileSelect(event) {
+    const files = event.target.files;
+    if (files.length > 0) {
+        leesBestandEnBereken(files[0]);
+    }
+}
+
+// 5. Universele inleesfunctie die direct parseBaplie() aanroept
+function leesBestandEnBereken(bestand) {
+    if (!bestand) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const content = event.target.result;
+        
+        // Vul het verborgen tekstvak
+        const textareaEl = document.getElementById('baplieInput');
+        if (textareaEl) {
+            textareaEl.value = content;
+        }
+
+        // Voer de echte BAPLIE-ontleden en rekenfunctie uit
+        if (typeof parseBaplie === 'function') {
+            parseBaplie();
+        }
+    };
+    reader.readAsText(bestand);
+}
 </script>
 
 </body>
