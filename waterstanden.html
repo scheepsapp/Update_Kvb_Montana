@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-        <link rel="icon" type="image/png" href="pic/icon-logo.png"> 
+    <link rel="icon" type="image/png" href="pic/icon-logo.png"> 
 <style>
     /* ======================================================= */
     /* DEFINITIEVE PREMIUM DASHBOARD STIJL                     */
@@ -65,7 +65,7 @@
         padding: 1.5rem;
     }
 
-    /* --- TITELS IN PANELEN (BRUGHOGTES OVERZICHT) --- */
+    /* --- TITELS IN PANELEN --- */
     h3.panel-title {
         font-size: 0.9rem;
         font-weight: 900;
@@ -174,7 +174,6 @@
     }
     .status-low-bg .rest-dvh-text { color: var(--accent-red) !important; }
 
-    /* Doorvaart (Witte tekst) */
     .dvh-actueel {
         color: var(--text-main);
         font-weight: 800;
@@ -186,7 +185,6 @@
         100% { box-shadow: inset 0 0 0 0 rgba(239, 68, 68, 0.2); }
     }
 
-    /* Grote Sectie Titels (DUITSLAND / NEDERLAND) */
     h2 {
         font-size: 1.75rem;
         font-weight: 900;
@@ -198,18 +196,15 @@
         margin-bottom: 1.5rem;
     }
 
-    /* Verberg Pegelnamen onder bruggen */
     .location-label, .text-white\/50, .text-xs.font-normal.text-white\/50 { 
         display: none !important; 
     }
 
-    /* Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
 
-
-/* --- LUXE NAVIGATIE KNOPPEN (RWS & ELWIS) --- */
+    /* --- LUXE NAVIGATIE KNOPPEN --- */
     .nav-links-container {
         display: flex;
         gap: 15px;
@@ -237,8 +232,6 @@
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
-    
-    /* Hover effect: oplichten en omhoog komen */
     .nav-link-btn:hover {
         background: rgba(59, 130, 246, 0.2);
         border-color: var(--accent-blue);
@@ -247,12 +240,119 @@
         color: var(--accent-blue);
     }
 
-    /* Specifieke kleur voor RWS (Oranje tintje optioneel) of hou alles blauw voor rust */
-    .btn-rws:hover::before { background: #3b82f6; box-shadow: 0 0 10px #3b82f6; }
-    .btn-elwis:hover::before { background: #3b82f6; box-shadow: 0 0 10px #3b82f6; }
+/* ======================================================= */
+/* HOOGTE BEREKENING MODAL & LAGEN STYLING                 */
+/* ======================================================= */
 
+/* Schakelaar Container */
+.toggle-container {
+    position: relative;
+    display: inline-block;
+    width: 58px;
+    height: 28px;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.toggle-checkbox {
+    display: none;
+}
+
+/* Track / Spoor */
+.toggle-track {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+/* Actieve toestand (HC) */
+.toggle-checkbox:checked + .toggle-track {
+    background-color: #2563eb;
+    border-color: #60a5fa;
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Bewegend bolletje */
+.toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.toggle-checkbox:checked + .toggle-track .toggle-thumb {
+    transform: translateX(30px);
+}
+
+/* Tekst in het bolletje (DV / HC) */
+.toggle-thumb::after {
+    content: 'DV';
+    font-size: 8px;
+    font-weight: 900;
+    color: #475569;
+    letter-spacing: -0.5px;
+}
+
+.toggle-checkbox:checked + .toggle-track .toggle-thumb::after {
+    content: 'HC';
+    color: #1e3a8a;
+}
+
+/* Knoppen voor + en - */
+.layer-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 15px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.layer-btn:hover {
+    background: rgba(59, 130, 246, 0.3);
+    border-color: #3b82f6;
+    color: #60a5fa;
+}
+
+.layer-btn:active {
+    transform: scale(0.92);
+}
+
+/* Zorg dat de lagen-lijst een vaste hoogte houdt en scrolt */
+.layers-scroll-area {
+    height: 260px;
+    max-height: 240px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.layers-scroll-area::-webkit-scrollbar {
+    width: 4px;
+}
+.layers-scroll-area::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
 </style>
-
 </head>
 <body class="flex flex-col items-center min-h-screen relative">
 
@@ -264,90 +364,125 @@
         </h1>
     </div>
 
-<div class="flex items-center">
-    <div class="nav-links-container hidden md:flex">
-        <a href="https://waterinfo.rws.nl/publiek/waterhoogte" target="_blank" class="nav-link-btn btn-rws">
-            RWS Waterinfo
-        </a>
-        <a href="https://www.elwis.de/DE/dynamisch/Wasserstaende/Pegelliste:area:RHEINGEBIET" target="_blank" class="nav-link-btn btn-elwis">
-            ELWIS
-        </a>
-    </div>
-
-               
-        <button id="theme-toggle" class="ml-4 p-2 rounded-full hover:bg-white/10">
-            </button>
+    <div class="flex items-center">
+        <div class="nav-links-container hidden md:flex">
+            <a href="https://waterinfo.rws.nl/publiek/waterhoogte" target="_blank" class="nav-link-btn btn-rws">RWS Waterinfo</a>
+            <a href="https://www.elwis.de/DE/dynamisch/Wasserstaende/Pegelliste:area:RHEINGEBIET" target="_blank" class="nav-link-btn btn-elwis">ELWIS</a>
+        </div>
+        <button id="theme-toggle" class="ml-4 p-2 rounded-full hover:bg-white/10"></button>
     </div>
 </nav>
 
-
-    
 <div class="fixed top-[100px] right-8 flex flex-col space-y-6">
-        
-        <div class="w-[280px] fixed-tool-panel" style="padding: 0; overflow: hidden;">
-            
-            <div class="p-6 pb-2">
-                <h3 class="panel-title-sm">Actuele Scheepshoogte</h3>
-                <div class="flex flex-col space-y-2">
-                    <input type="number" id="ship-height-global" value="700" step="1" 
-                           class="ship-height-input p-2 rounded-md border text-base focus:border-blue-500 text-right font-bold">
-                </div>
+    <div class="w-[280px] fixed-tool-panel" style="padding: 0; overflow: hidden;">
+        <div class="p-6 pb-2">
+            <h3 class="panel-title-sm">Actuele Scheepshoogte</h3>
+            <div class="flex flex-col space-y-2">
+                <input type="number" id="ship-height-global" value="700" step="1" 
+                       class="ship-height-input p-2 rounded-md border text-base focus:border-blue-500 text-right font-bold">
+                
+                <!-- Knop om de Hoogte Berekening pop-up te openen -->
+                <button id="open-calc-modal" class="w-full mt-2 bg-white/5 hover:bg-blue-600/20 border border-blue-500/40 text-blue-400 hover:text-white font-bold text-xs uppercase py-2.5 px-3 rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md">
+                    📐 Hoogte Berekening
+                </button>
             </div>
-            
-            <img src="pic/schip.png" alt="Profiel van het schip" class="w-full h-auto block border-t border-white/10">
-            
         </div>
-        
-        <div class="w-[280px] fixed-tool-panel">
-            <h3 class="panel-title-sm text-red-500" style="border-color: #dc2626; color: #dc2626;">Marke Alarmen </h3>
-            <ul id="marke-alarm-list" class="space-y-3 text-sm">
-            </ul>
+        <img src="pic/schip.png" alt="Profiel van het schip" class="w-full h-auto block border-t border-white/10">
+    </div>
+    
+    <div class="w-[280px] fixed-tool-panel">
+        <h3 class="panel-title-sm text-red-500" style="border-color: #dc2626; color: #dc2626;">Marke Alarmen</h3>
+        <ul id="marke-alarm-list" class="space-y-3 text-sm"></ul>
+    </div>
+</div>
+
+<div class="flex flex-col max-w-7xl w-full gap-10 p-4 pt-16"> 
+    <h2 class="text-4xl font-extrabold tracking-wider pb-2 border-b-4 border-b-indigo-500" style="color: var(--accent-blue);">DUITSLAND (RHEIN)</h2>
+    <div class="flex w-full gap-8">
+        <div class="w-1/3 tool-panel waterstand-panel">
+            <h3 class="panel-title" style="border-color: var(--accent-teal); color: var(--accent-teal);">WATERSTANDEN</h3>
+            <div id="waterstand-list-de" class="space-y-2 list-panel"></div>
+        </div>
+        <div class="w-2/3 tool-panel bridge-panel">
+            <h3 class="panel-title" style="border-color: var(--accent-teal); color: var(--accent-teal);">BRUGHOOGTES OVERZICHT</h3>
+            <div id="bridge-list-de" class="space-y-3 list-panel"></div>
         </div>
     </div>
-
-    <div class="flex flex-col max-w-7xl w-full gap-10 p-4 pt-16"> 
-        
-        <h2 class="text-4xl font-extrabold tracking-wider pb-2 border-b-4 border-b-indigo-500" 
-            style="color: var(--accent-blue);">DUITSLAND (RHEIN)</h2>
-        <div class="flex w-full gap-8">
-            
-            <div class="w-1/3 tool-panel waterstand-panel">
-                <h3 class="panel-title" style="border-color: var(--accent-teal); color: var(--accent-teal);">WATERSTANDEN</h3>
-                <div id="waterstand-list-de" class="space-y-2 list-panel">
-                </div>
-            </div>
-
-            <div class="w-2/3 tool-panel bridge-panel">
-                <h3 class="panel-title" style="border-color: var(--accent-teal); color: var(--accent-teal);">BRUGHOOGTES OVERZICHT</h3>
-                <div id="bridge-list-de" class="space-y-3 list-panel">
-                </div>
-            </div>
+    
+    <h2 class="text-4xl font-extrabold tracking-wider mt-8 pb-2 border-b-4 border-b-indigo-500" style="color: var(--accent-blue);">NEDERLANDSE BRUGGEN</h2>
+    <div class="flex w-full gap-8">
+        <div class="w-1/3 tool-panel waterstand-panel">
+            <h3 class="panel-title" style="border-color: var(--accent-teal); color: var(--accent-teal);">WATERSTANDEN</h3>
+            <div id="waterstand-list-nl" class="space-y-2 list-panel"></div>
         </div>
-        
-        
-        <h2 class="text-4xl font-extrabold tracking-wider mt-8 pb-2 border-b-4 border-b-indigo-500"
-            style="color: var(--accent-blue);">NEDERLANDSE BRUGGEN</h2>
-        <div class="flex w-full gap-8">
-            
-            <div class="w-1/3 tool-panel waterstand-panel">
-                <h3 class="panel-title" style="border-color: var(--accent-teal); color: var(--accent-teal);">WATERSTANDEN</h3>
-                <div id="waterstand-list-nl" class="space-y-2 list-panel">
-                </div>
-            </div>
-
-            <div class="w-2/3 tool-panel bridge-panel">
-                <h3 class="panel-title" style="border-color: var(--accent-teal); color: var(--accent-teal);">BRUGHOOGTES OVERZICHT</h3>
-                <div id="bridge-list-nl" class="space-y-3 list-panel">
-                </div>
-            </div>
+        <div class="w-2/3 tool-panel bridge-panel">
+            <h3 class="panel-title" style="border-color: var(--accent-teal); color: var(--accent-teal);">BRUGHOOGTES OVERZICHT</h3>
+            <div id="bridge-list-nl" class="space-y-3 list-panel"></div>
         </div>
-        
     </div>
+</div>
 
+<!-- ======================================================= -->
+<!-- HOOGTE BEREKENING MODAL (POP-UP)                        -->
+<!-- ======================================================= -->
+<div id="calc-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden">
+    <div class="tool-panel w-[680px] max-h-[90vh] overflow-y-auto p-6 relative border border-blue-500/30 shadow-2xl">
+        
+        <button id="close-calc-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white font-bold text-xl cursor-pointer">&times;</button>
+        
+        <h3 class="panel-title" style="color: var(--accent-blue);">Hoogte Berekening</h3>
+        
+        <div class="grid grid-cols-2 gap-4 my-4 text-sm items-start">
+            
+            <div class="flex flex-col space-y-4 w-full">
+                <div class="bg-[#0f172a]/60 p-4 rounded-xl border border-white/10 flex flex-col justify-between w-full">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Diepgang (cm)</label>
+                        <input type="number" id="calc-diepgang" value="200" class="w-full bg-[#0f172a] text-white border border-blue-500/50 rounded-lg p-3 font-bold text-right text-lg">
+                    </div>
+                    <div class="bg-blue-950/40 border border-blue-500/30 p-2.5 rounded-lg flex justify-between items-center" style="margin-top: 12px;">
+                    <span class="text-[11px] font-bold text-gray-300 uppercase tracking-wider">Vaste Spanthoogte:</span>
+                    <span id="display-spanthoogte" class="text-sm font-black text-blue-400">150 cm</span>
+                </div>
+                </div>
 
+                <div class="bg-[#0f172a]/80 p-4 rounded-xl border border-blue-500/40 flex flex-col justify-between w-full shadow-lg">
+                    <label class="block text-xs font-bold text-blue-400 uppercase">Berekende Hoogte</label>
+                    <div id="calc-total-result" class="text-2xl font-black text-white text-right mt-2">
+            <span id="calc-preview-result" class="text-xl font-black text-blue-400">1020 cm</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex flex-col">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Aantal Lagen</span>
+                    <div class="flex items-center gap-2">
+                        <button id="btn-remove-layer" class="layer-btn" title="Laag verwijderen">-</button>
+                        <span id="layer-count-label" class="text-xs font-black text-blue-400 min-w-[20px] text-center">4</span>
+                        <button id="btn-add-layer" class="layer-btn" title="Laag toevoegen">+</button>
+                    </div>
+                </div>
+                
+                <div id="layers-container" class="layers-scroll-area flex flex-col space-y-2">
+                    </div>
+            </div>
+        </div>
+<div>
+    <img id="ship-dynamic-img" 
+         src="pic/Zij schip 4 lagen.png" 
+         alt="Zij schip" 
+         class="mt-3 h-28 object-contain rounded-xl transition-all duration-300">
+</div>
+        
+<button id="apply-calc-height" class="w-full mt-3 bg-blue-600 hover:bg-blue-500 active:scale-[0.99] text-white font-black uppercase text-xs py-3 rounded-xl tracking-wider transition-all shadow-lg shadow-blue-600/30 cursor-pointer">
+    Berekening Toepassen
+</button>
+    </div>
+</div>
 <script>
 
-
+           
 
 
     
@@ -706,6 +841,170 @@ loadWaterstandData(waterstandDataDE, waterstandDataNL);
         updateAllBridgesStatus(); 
         updateMarkeAlarmList();
     });
+
+// ====================================================================
+// HOOGTE BEREKENING MODAL LOGICA 📐
+// ====================================================================
+const calcModal = document.getElementById('calc-modal');
+const openCalcBtn = document.getElementById('open-calc-modal');
+const closeCalcBtn = document.getElementById('close-calc-modal');
+const applyCalcBtn = document.getElementById('apply-calc-height');
+
+const calcDiepgangInput = document.getElementById('calc-diepgang');
+const calcPreviewResult = document.getElementById('calc-preview-result');
+const displaySpanthoogte = document.getElementById('display-spanthoogte');
+
+const layersContainer = document.getElementById('layers-container');
+const btnAddLayer = document.getElementById('btn-add-layer');
+const btnRemoveLayer = document.getElementById('btn-remove-layer');
+const layerCountLabel = document.getElementById('layer-count-label');
+
+const shipDynamicImg = document.getElementById('ship-dynamic-img');
+const shipImageTitle = document.getElementById('ship-image-title');
+
+// Vaste Instellingen
+const SPANTHOOGTE_CM = 60; // Vaste spanthoogte
+const HOOGTE_DV_CM = 260;   // DV stand = 260 cm per laag
+const HOOGTE_HC_CM = 290;   // HC stand = 290 cm per laag
+const MAX_LAGEN = 4;        // Maximaal 4 lagen
+
+let totalLayers = 4; // Startstand 4 lagen
+
+// Afbeelding & Titel onder het resultaat bijwerken
+function updateShipImage() {
+    const meervoud = totalLayers === 1 ? 'laag' : 'lagen';
+    const imageName = `Zij schip ${totalLayers} ${meervoud}`;
+    
+    if (shipImageTitle) {
+        shipImageTitle.textContent = imageName;
+    }
+    
+    if (shipDynamicImg) {
+        shipDynamicImg.src = `pic/${imageName}.png`;
+        shipDynamicImg.alt = imageName;
+    }
+}
+
+// Dynamische Lagen Opbouwen
+function renderLayers() {
+    const existingStates = [];
+    document.querySelectorAll('.layer-toggle-input').forEach(toggle => {
+        existingStates.push(toggle.checked);
+    });
+
+    layersContainer.innerHTML = '';
+    layerCountLabel.textContent = totalLayers;
+
+    for (let i = 1; i <= totalLayers; i++) {
+        const layerDiv = document.createElement('div');
+        layerDiv.className = 'bg-white/5 border border-white/10 px-3 py-2 rounded-xl flex items-center justify-between hover:border-white/20 transition-all flex-shrink-0';
+        
+        const isChecked = existingStates[i - 1] || false;
+
+        layerDiv.innerHTML = `
+            <span class="font-bold text-xs text-slate-200">Laag ${i}</span>
+            <label class="toggle-container">
+                <input type="checkbox" id="toggle-laag-${i}" class="toggle-checkbox layer-toggle-input" ${isChecked ? 'checked' : ''}>
+                <span class="toggle-track">
+                    <span class="toggle-thumb"></span>
+                </span>
+            </label>
+        `;
+
+        layersContainer.appendChild(layerDiv);
+    }
+
+    // Event listeners toevoegen
+    document.querySelectorAll('.layer-toggle-input').forEach(toggle => {
+        toggle.addEventListener('change', calculateShipHeight);
+    });
+
+    updateShipImage();
+    calculateShipHeight();
+}
+
+// Rekensom & Live Preview Update
+function calculateShipHeight() {
+    const diepgang = parseFloat(calcDiepgangInput.value) || 0;
+    let totaleHoogteLagen = 0;
+
+    const toggles = document.querySelectorAll('.layer-toggle-input');
+    toggles.forEach((toggle) => {
+        if (toggle.checked) {
+            totaleHoogteLagen += HOOGTE_HC_CM; // HC = 290 cm
+        } else {
+            totaleHoogteLagen += HOOGTE_DV_CM; // DV = 260 cm
+        }
+    });
+
+    // Formule: Spanthoogte + Lagen - Diepgang
+    let berekendeHoogte = SPANTHOOGTE_CM + totaleHoogteLagen - diepgang;
+    const uitkomst = Math.max(0, Math.round(berekendeHoogte));
+
+    if (calcPreviewResult) {
+        calcPreviewResult.textContent = `${uitkomst} cm`;
+    }
+
+    return uitkomst;
+}
+
+// Plus en Min Knoppen
+btnAddLayer.addEventListener('click', () => {
+    if (totalLayers < MAX_LAGEN) {
+        totalLayers++;
+        renderLayers();
+    }
+});
+
+btnRemoveLayer.addEventListener('click', () => {
+    if (totalLayers > 1) {
+        totalLayers--;
+        renderLayers();
+    }
+});
+
+// Event Listeners voor Modal openen en sluiten
+calcDiepgangInput.addEventListener('input', calculateShipHeight);
+
+openCalcBtn.addEventListener('click', () => {
+    if (displaySpanthoogte) {
+        displaySpanthoogte.textContent = `${SPANTHOOGTE_CM} cm`;
+    }
+    calcModal.classList.remove('hidden');
+    renderLayers();
+});
+
+closeCalcBtn.addEventListener('click', () => {
+    calcModal.classList.add('hidden');
+});
+
+calcModal.addEventListener('click', (e) => {
+    if (e.target === calcModal) {
+        calcModal.classList.add('hidden');
+    }
+});
+
+// BEREKENING TOEPASSEN KNOP
+applyCalcBtn.addEventListener('click', () => {
+    const totaleHoogte = calculateShipHeight();
+    const globalInput = document.getElementById('ship-height-global');
+
+    if (globalInput) {
+        // 1. Zet de waarde in het actuele hoogte veld rechtsboven
+        globalInput.value = totaleHoogte;
+        
+        // 2. Sla op in local storage
+        if (typeof saveShipHeight === 'function') {
+            saveShipHeight(totaleHoogte);
+        }
+
+        // 3. Vuur het 'input' event af zodat de bruggen herberekend worden
+        globalInput.dispatchEvent(new Event('input'));
+    }
+
+    // 4. Sluit de modal/pop-up
+    calcModal.classList.add('hidden');
+});
 </script>
 </body>
 </html>
