@@ -874,9 +874,25 @@
                 if (parts[0] === "TDT") {
                     if (parts[2]) window.extractedVoyage = parts[2];
                 }
-                if (parts[0] === "LOC" && (parts[1] === "11" || parts[1] === "83")) {
-                    if (parts[2]) tempStoredTerminal = parts[2].split(":")[0].trim() === "DPWGE" ? "Germersheim" : parts[2].split(":")[0].trim();
-                }
+// NIEUWE CODE (ondersteunt ook NAD+DP en LOC+7):
+if ((parts[0] === "LOC" && (parts[1] === "11" || parts[1] === "83" || parts[1] === "7")) || (parts[0] === "NAD" && parts[1] === "DP")) {
+    if (parts[2]) {
+        // Omzetten naar hoofdletters zodat '0apma' en '0APMA' allebei werken
+        const termCode = parts[2].split(":")[0].trim().toUpperCase();
+        
+        // Mapping van de EDI-codes naar de gewenste weergavenaam
+        const terminalMapping = {
+            "0APMA": "APM II",
+            "0HPDE": "HPD 2",
+            "00RWG": "RWG",
+            "DPWGE": "Germersheim",
+            "DEGERDPWGE": "Germersheim"
+        };
+
+        // Gebruik de gemapte naam; als de code niet in het lijstje staat, gebruik de originele code
+        tempStoredTerminal = terminalMapping[termCode] || termCode;
+    }
+}
                 if (parts[0] === "TMP" || parts[0] === "RNG") {
                     tempIsReefer = true;
                     if (parts[0] === "RNG" && parts[2]) {
