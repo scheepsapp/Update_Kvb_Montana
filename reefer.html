@@ -997,11 +997,53 @@ if ((parts[0] === "LOC" && (parts[1] === "11" || parts[1] === "83" || parts[1] =
 
         const contextMenu = document.getElementById('customContextMenu');
 
-        function showContextMenu(x, y) {
-            contextMenu.style.left = `${x}px`;
-            contextMenu.style.top = `${y}px`;
-            contextMenu.classList.remove('hidden');
-        }
+function showContextMenu(x, y) {
+    const marge = 8;
+
+    // Menu zichtbaar maken zodat de afmetingen berekend kunnen worden
+    contextMenu.classList.remove('hidden');
+
+    const menuBreedte = contextMenu.offsetWidth;
+    const menuHoogte = contextMenu.offsetHeight;
+
+    const schermBreedte = window.innerWidth;
+    const schermHoogte = window.innerHeight;
+
+    // Horizontale positie controleren
+    let links = x;
+
+    if (links + menuBreedte > schermBreedte - marge) {
+        links = schermBreedte - menuBreedte - marge;
+    }
+
+    if (links < marge) {
+        links = marge;
+    }
+
+    // Verticale positie: standaard naar beneden
+    let boven = y;
+
+    // Past het menu niet onder de muis?
+    if (y + menuHoogte > schermHoogte - marge) {
+
+        // Dan boven de muis openen
+        boven = y - menuHoogte;
+
+    }
+
+    // Als het boven ook niet past, binnen het scherm houden
+    if (boven < marge) {
+        boven = marge;
+    }
+
+    if (boven + menuHoogte > schermHoogte - marge) {
+        boven = schermHoogte - menuHoogte - marge;
+    }
+
+    // Positie instellen
+    contextMenu.style.left = `${links}px`;
+    contextMenu.style.top = `${boven}px`;
+}
 
         function hideContextMenu() {
             contextMenu.classList.add('hidden');
